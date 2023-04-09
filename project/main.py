@@ -150,47 +150,46 @@ if len(dropdown) > 0:
     data = new_data[pilihan2]
     st.line_chart(data, y=pilihan2)
 
-    if st.button("Mulai Prediksi"):
+    new_rows = pd.DataFrame(index=pd.date_range(
+        start=start_predict,  end=end_predict, freq='D', inclusive='right'), columns=new_data.columns[:4])
+    new_pred_data = pd.concat([new_data.drop(columns=['open_predicted', 'high_predicted',
+                                                      'low_predicted', 'close_predicted'], axis=0), new_rows], axis=0)
+    upcoming_prediction = pd.DataFrame(
+        columns=['Open', 'High', 'Low', 'Close'], index=new_pred_data.index)
+    upcoming_prediction.index = pd.to_datetime(
+        upcoming_prediction.index)
 
-        new_rows = pd.DataFrame(index=pd.date_range(
-            start=start_predict,  end=end_predict, freq='D', inclusive='right'), columns=new_data.columns[:4])
-        new_pred_data = pd.concat([new_data.drop(columns=['open_predicted', 'high_predicted',
-                                                          'low_predicted', 'close_predicted'], axis=0), new_rows], axis=0)
-        upcoming_prediction = pd.DataFrame(
-            columns=['Open', 'High', 'Low', 'Close'], index=new_pred_data.index)
-        upcoming_prediction.index = pd.to_datetime(
-            upcoming_prediction.index)
+    curr_seq = test_seq[-1:]
 
-        curr_seq = test_seq[-1:]
+    for i in range(periode, 0):
+        up_pred = new_model.predict(curr_seq)
+        upcoming_prediction.iloc[i] = up_pred
+        curr_seq = np.append(curr_seq[0][1:], up_pred, axis=0)
+        curr_seq = curr_seq.reshape(test_seq[-1:].shape)
 
-        for i in range(periode, 0):
-            up_pred = new_model.predict(curr_seq)
-            upcoming_prediction.iloc[i] = up_pred
-            curr_seq = np.append(curr_seq[0][1:], up_pred, axis=0)
-            curr_seq = curr_seq.reshape(test_seq[-1:].shape)
+    upcoming_prediction[['Open', 'High', 'Low', 'Close']] = MMS.inverse_transform(
+        upcoming_prediction[['Open', 'High', 'Low', 'Close']])
 
-        upcoming_prediction[['Open', 'High', 'Low', 'Close']] = MMS.inverse_transform(
-            upcoming_prediction[['Open', 'High', 'Low', 'Close']])
+    cols3 = upcoming_prediction.columns.tolist()
 
-        cols3 = upcoming_prediction.columns.tolist()
+    pilihan3 = st.selectbox(
+        "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols3, key='chart_next_predict')
+    data_prediction = upcoming_prediction[pilihan3]
+    data_prediction = data_prediction[start_predict:]
+    st.subheader(f"Berikut data {dropdown} {pilihan3} yang akan datang")
+    st.dataframe(
+        data_prediction, use_container_width=True)
 
-        pilihan3 = st.selectbox(
-            "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols3, key='chart_next_predict')
-        data_prediction = upcoming_prediction[pilihan3]
-        data_prediction = data_prediction[start_predict:]
-        st.subheader(f"Berikut data {dropdown} {pilihan3} yang akan datang")
-        st.dataframe(
-            data_prediction, use_container_width=True)
+    fig, ax = plt.subplots(figsize=(20, 10))
+    ax.plot(new_pred_data.loc['2022-01-01':,
+            pilihan3], label=f'Harga {pilihan3} Terkini')
+    ax.plot(upcoming_prediction.loc['2023-01-01':,
+            pilihan3], label=f'Harga {pilihan3} yang akan datang')
+    plt.setp(ax.xaxis.get_majorticklabels(), rotation=45)
+    ax.set_xlabel('Tanggal', size=15)
+    ax.set_ylabel(f'{dropdown} Price', size=15)
+    ax.set_title(
+        f'Peramalan harga {dropdown} {pilihan3} yang akan datang', size=15)
+    ax.legend()
 
-        fig, ax = plt.subplots(figsize=(10, 5))
-        ax.plot(new_pred_data.loc['2022-01-01':,
-                pilihan3], label=f'Harga {pilihan3} Terkini')
-        ax.plot(upcoming_prediction.loc['2023-01-01':,
-                pilihan3], label=f'Harga {pilihan3} yang akan datang')
-        plt.setp(ax.xaxis.get_majorticklabels(), rotation=45)
-        ax.set_xlabel('Tanggal', size=15)
-        ax.set_ylabel(f'{dropdown} Price', size=15)
-        ax.set_title(
-            f'Peramalan harga {dropdown} {pilihan3} yang akan datang', size=15)
-        ax.legend()
-        st.pyplot(fig)
+    st.pyplot(fig)
