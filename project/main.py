@@ -81,7 +81,7 @@ periode = (start_predict - end_predict).days - 1
 if len(dropdown) > 0:
     st.subheader(f'Berikut data historis {dropdown} 2019-2022')
     data_historis = pd.read_excel(
-        f"/prediksi_crypto/data_historis/{dropdown}_data_historis.xlsx", index_col=0, parse_dates=True)
+        f"/prediksi_crypto/Cryptocurrency-Predicition-App/data_historis/{dropdown}_data_historis.xlsx", index_col=0, parse_dates=True)
     df = pd.DataFrame(data_historis)
 
     cols1 = df.columns.tolist()
@@ -125,7 +125,7 @@ if len(dropdown) > 0:
     test_seq, test_label = create_sequence(test_data)
 
     new_model = load_trained_model(
-        f'/prediksi_crypto/model/{dropdown}_model')
+        f'/prediksi_crypto/Cryptocurrency-Predicition-App/model/{dropdown}_model')
 
     test_predicted = new_model.predict(test_seq)
     test_inverse_predicted = MMS.inverse_transform(test_predicted)
