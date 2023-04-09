@@ -174,13 +174,14 @@ if len(dropdown) > 0:
 
         cols3 = upcoming_prediction.columns.tolist()
 
-        pilihan3 = st.multiselect(
-            "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols3, default=["Open"], key='chart_next_predict')
+        pilihan3 = st.selectbox(
+            "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols3, key='chart_next_predict')
         data_prediction = upcoming_prediction[pilihan3]
         data_prediction = data_prediction[start_predict:]
         st.subheader(f"Berikut data {dropdown} {pilihan3} yang akan datang")
         st.dataframe(
             data_prediction, use_container_width=True)
+
         fig, ax = plt.subplots(figsize=(10, 5))
         ax.plot(new_pred_data.loc['2022-01-01':,
                 pilihan3], label=f'Harga {pilihan3} Terkini')
