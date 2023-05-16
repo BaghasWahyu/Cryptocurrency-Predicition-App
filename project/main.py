@@ -171,7 +171,7 @@ if len(dropdown) > 0:
     upcoming_prediction.index = pd.to_datetime(
         upcoming_prediction.index)
 
-    curr_seq = test_seq[-1:]
+    current_seq = test_seq[-1:]
 
     for i in range(periode, 0):
         up_pred = new_model.predict(current_seq)
