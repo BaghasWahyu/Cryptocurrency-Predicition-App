@@ -221,7 +221,7 @@ if len(dropdown) > 0:
     data_combined = pd.concat(
         [data_prediction, latest_price[pilihan3]], axis=1)
     data_combined = data_combined.rename(
-        columns={data_combined.columns[2]: f'{pilihan3}_Latest'})
+        columns={data_combined.columns[1]: f'{pilihan3}_Latest'})
 
     st.subheader(f"Berikut data {dropdown} {pilihan3_str} yang akan datang")
     st.dataframe(
