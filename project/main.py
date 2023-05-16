@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-from scrape import symbol
+from scrape import symbolCrypto
 import numpy as np
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
@@ -65,16 +65,20 @@ def load_trained_model(path_to_model):
 
 
 dropdown = st.selectbox(
-    "Pilih Salah Satu Cryptocurrency", symbol, key='input_crypto')
+    "Pilih Salah Satu Cryptocurrency", symbolCrypto, key='input_crypto')
 # st.write(st.session_state.input_crypto)
-
-start_predict = st.date_input(
-    "Tanggal Awal Prediksi", value=pd.to_datetime("2022-12-31"), min_value=pd.to_datetime("2022-12-31"), key='input_start')
-# st.write(st.session_state.input_start)
-
-end_predict = st.date_input("Tanggal Akhir Prediksi",
-                            value=pd.to_datetime("today"), key='input_end')
-# st.write(st.session_state.input_end)
+if dropdown:
+    start_predict = st.date_input(
+        "Tanggal Awal Prediksi", value=pd.to_datetime("2022-12-31"), min_value=pd.to_datetime("2022-12-31"), key='input_start')
+    # st.write(st.session_state.input_start)
+    if start_predict:
+        end_predict = st.date_input("Tanggal Akhir Prediksi",
+                                    value=pd.to_datetime("today"), key='input_end')
+        # st.write(st.session_state.input_end)
+    else:
+        st.warning('Pilih Tanggal Awal Prediksi Terlebih Dahulu!')
+else:
+    st.warning('Pilih Crypto Terlebih Dahulu!')
 
 periode = (start_predict - end_predict).days - 1
 
