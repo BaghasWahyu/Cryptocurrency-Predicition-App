@@ -171,7 +171,7 @@ if len(dropdown) > 0:
     upcoming_prediction.index = pd.to_datetime(
         upcoming_prediction.index)
 
-    curr_seq = test_seq[-1:]
+    current_seq = test_seq[-1:]
 
     for i in range(periode, 0):
         up_pred = new_model.predict(current_seq)
@@ -185,7 +185,7 @@ if len(dropdown) > 0:
     cols3 = upcoming_prediction.columns.tolist()
 
     @st.cache_data
-    def get_latest_price(dropdown):
+    def get_latest_price():
         latest_scraper = CmcScraper(dropdown, start_predict, end_predict)
         latest_price = latest_scraper.get_dataframe()
 
