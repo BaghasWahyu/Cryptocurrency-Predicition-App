@@ -212,6 +212,9 @@ if len(dropdown) > 0:
 
     latest_price = get_latest_price()
 
+    diff_col_name_latest_price = latest_price.rename(
+        columns={'Open': 'Open_Latest', 'High': 'High_Latest', 'Low': 'Low_Latest', 'Close': 'Close_Latest'})
+
     pilihan3 = st.selectbox(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols3, key='chart_next_predict')
     pilihan3_str = str(pilihan3)
@@ -219,8 +222,7 @@ if len(dropdown) > 0:
     data_prediction = data_prediction[start_predict:]
     # print(type(data_prediction))
     data_combined = pd.concat(
-        [data_prediction, latest_price[pilihan3].rename(
-            columns={pilihan3_str: f'{pilihan3_str}_Latest'})], axis=1)
+        [data_prediction, diff_col_name_latest_price[pilihan3]], axis=1)
     # data_combined = data_combined.rename(
     #     columns={pilihan3_str: f'{pilihan3_str}_Prediction', pilihan3_str: f'{pilihan3_str}Latest'})
 
