@@ -185,7 +185,12 @@ if len(dropdown) > 0:
 
     @st.cache_data
     def get_latest_price():
-        latest_scraper = CmcScraper(dropdown, start_predict, end_predict)
+        latest_date_start = start_predict.strftime("%d-%m-%Y")
+
+        latest_date_end = end_predict.strftime("%d-%m-%Y")
+
+        latest_scraper = CmcScraper(
+            dropdown, latest_date_start, latest_date_end)
         latest_price = latest_scraper.get_dataframe()
 
         latest_price['Open'] = latest_price['Open'].apply(
