@@ -184,6 +184,7 @@ if len(dropdown) > 0:
 
     cols3 = upcoming_prediction.columns.tolist()
 
+    @st.cache_data
     def get_latest_price(dropdown):
         latest_scraper = CmcScraper(dropdown, start_predict, end_predict)
         latest_price = latest_scraper.get_dataframe()
