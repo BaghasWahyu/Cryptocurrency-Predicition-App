@@ -71,14 +71,12 @@ if dropdown:
     start_predict = st.date_input(
         "Tanggal Awal Prediksi", value=pd.to_datetime("2022-12-31"), min_value=pd.to_datetime("2022-12-31"), key='input_start')
     # st.write(st.session_state.input_start)
-    if start_predict:
-        end_predict = st.date_input("Tanggal Akhir Prediksi",
-                                    value=pd.to_datetime("today"), key='input_end')
-        # st.write(st.session_state.input_end)
-    else:
-        st.warning('Pilih Tanggal Awal Prediksi Terlebih Dahulu!')
-else:
-    st.warning('Pilih Crypto Terlebih Dahulu!')
+
+    end_predict = st.date_input("Tanggal Akhir Prediksi",
+                                value=pd.to_datetime("today"), key='input_end')
+    # st.write(st.session_state.input_end)
+
+st.warning('Pilih Crypto Terlebih Dahulu!')
 
 periode = (start_predict - end_predict).days - 1
 
@@ -98,22 +96,29 @@ if len(dropdown) > 0:
     pilihan1 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols1, key='chart_crypto_1', default=['Open'])
     # st.write(st.session_state.chart_crypto_1)
-    data1 = df[pilihan1 + ["Date"]]
-    st.line_chart(data1, x="Date", y=pilihan1)
+    if pilihan1:
+        data1 = df[pilihan1 + ["Date"]]
+        st.line_chart(data1, x="Date", y=pilihan1)
 
-    cols1_5 = df.columns.tolist()
+        cols1_5 = df.columns.tolist()
 
-    cols1_5.remove("Date")
-    cols1_5.remove("Open")
-    cols1_5.remove("High")
-    cols1_5.remove("Low")
-    cols1_5.remove("Close")
+        cols1_5.remove("Date")
+        cols1_5.remove("Open")
+        cols1_5.remove("High")
+        cols1_5.remove("Low")
+        cols1_5.remove("Close")
+
+    else:
+        st.warning('Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!')
 
     pilihan1_5 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols1_5, default=["Volume"], key='chart_crypto_2')
     # st.write(st.session_state.chart_crypto_2)
-    data1_5 = df[pilihan1_5 + ["Date"]]
-    st.line_chart(data1_5, x="Date", y=pilihan1_5)
+    if pilihan1_5:
+        data1_5 = df[pilihan1_5 + ["Date"]]
+        st.line_chart(data1_5, x="Date", y=pilihan1_5)
+    else:
+        st.warning('Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!')
 
     crypto_data = df[['Date', 'Open', 'High', 'Low', 'Close']]
     crypto_data['Date'] = pd.to_datetime(crypto_data['Date'])
@@ -151,9 +156,11 @@ if len(dropdown) > 0:
     st.dataframe(new_data, use_container_width=True)
     pilihan2 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols2, default=["Open", "open_predicted"], key="chart_predict")
-    data = new_data[pilihan2]
-    st.line_chart(data, y=pilihan2)
-
+    if pilihan2:
+        data = new_data[pilihan2]
+        st.line_chart(data, y=pilihan2)
+    else:
+        st.warning('Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!')
     new_rows = pd.DataFrame(index=pd.date_range(
         start=start_predict,  end=end_predict, freq='D', inclusive='right'), columns=new_data.columns[:4])
     new_pred_data = pd.concat([new_data.drop(columns=['open_predicted', 'high_predicted',
@@ -166,10 +173,10 @@ if len(dropdown) > 0:
     curr_seq = test_seq[-1:]
 
     for i in range(periode, 0):
-        up_pred = new_model.predict(curr_seq)
+        up_pred = new_model.predict(current_seq)
         upcoming_prediction.iloc[i] = up_pred
-        curr_seq = np.append(curr_seq[0][1:], up_pred, axis=0)
-        curr_seq = curr_seq.reshape(test_seq[-1:].shape)
+        current_seq = np.append(current_seq[0][1:], up_pred, axis=0)
+        current_seq = current_seq.reshape(test_seq[-1:].shape)
 
     upcoming_prediction[['Open', 'High', 'Low', 'Close']] = MMS.inverse_transform(
         upcoming_prediction[['Open', 'High', 'Low', 'Close']])
