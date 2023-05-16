@@ -54,7 +54,7 @@ if 'chart_predict' not in st.session_state:
     st.session_state['chart_predict'] = ['Open', 'open_predicted']
 
 if 'chart_next_predict' not in st.session_state:
-    st.session_state['chart_next_predict'] = ['Open']
+    st.session_state['chart_next_predict'] = 'Open'
 
 
 @st.cache_resource
