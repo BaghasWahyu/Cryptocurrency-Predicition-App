@@ -218,9 +218,14 @@ if len(dropdown) > 0:
     data_prediction = upcoming_prediction[pilihan3]
     data_prediction = data_prediction[start_predict:]
 
+    data_combined = pd.concat(
+        [data_prediction, latest_price[pilihan3]], axis=1)
+    data_combined = data_combined.rename(
+        columns={data_combined.columns[2]: f'{pilihan3}_Latest'})
+
     st.subheader(f"Berikut data {dropdown} {pilihan3_str} yang akan datang")
     st.dataframe(
-        data_prediction, use_container_width=True)
+        data_combined, use_container_width=True)
 
     fig, ax = plt.subplots(figsize=(20, 10))
     ax.plot(new_pred_data.loc['2022-01-01':,
