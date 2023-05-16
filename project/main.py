@@ -218,11 +218,12 @@ if len(dropdown) > 0:
     pilihan3 = st.selectbox(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols3, key='chart_next_predict')
     pilihan3_str = str(pilihan3)
+    pilihan3_latest = (f'{pilihan3}_Latest')
     data_prediction = upcoming_prediction[pilihan3]
     data_prediction = data_prediction[start_predict:]
     # print(type(data_prediction))
     data_combined = pd.concat(
-        [data_prediction, diff_col_name_latest_price[pilihan3]], axis=1)
+        [data_prediction, diff_col_name_latest_price[pilihan3_latest]], axis=1)
     # data_combined = data_combined.rename(
     #     columns={pilihan3_str: f'{pilihan3_str}_Prediction', pilihan3_str: f'{pilihan3_str}Latest'})
 
