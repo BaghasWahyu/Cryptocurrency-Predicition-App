@@ -219,7 +219,8 @@ if len(dropdown) > 0:
     data_prediction = data_prediction[start_predict:]
     # print(type(data_prediction))
     data_combined = pd.concat(
-        [data_prediction, latest_price[[pilihan3]]], axis=1)
+        [data_prediction, latest_price[pilihan3].rename(
+            columns={pilihan3_str: f'{pilihan3_str}_Latest'})], axis=1)
     # data_combined = data_combined.rename(
     #     columns={pilihan3_str: f'{pilihan3_str}_Prediction', pilihan3_str: f'{pilihan3_str}Latest'})
 
