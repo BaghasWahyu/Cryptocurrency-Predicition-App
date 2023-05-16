@@ -77,7 +77,6 @@ if dropdown:
                                 value=pd.to_datetime("today"), key='input_end')
     # st.write(st.session_state.input_end)
 
-st.warning('Pilih Crypto Terlebih Dahulu!')
 
 periode = (start_predict - end_predict).days - 1
 
