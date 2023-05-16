@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scrape import symbolCrypto
 import numpy as np
+from cryptocmd import CmcScraper
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 
@@ -183,11 +184,35 @@ if len(dropdown) > 0:
 
     cols3 = upcoming_prediction.columns.tolist()
 
+    def get_latest_price(dropdown):
+        latest_scraper = CmcScraper(dropdown, start_predict, end_predict)
+        latest_price = latest_scraper.get_dataframe()
+
+        latest_price['Open'] = latest_price['Open'].apply(
+            lambda x: round(x, 2))
+        latest_price['High'] = latest_price['High'].apply(
+            lambda x: round(x, 2))
+        latest_price['Low'] = latest_price['Low'].apply(lambda x: round(x, 2))
+        latest_price['Close'] = latest_price['Close'].apply(
+            lambda x: round(x, 2))
+
+        latest_price = latest_price[::-1]
+        latest_price = latest_price.reset_index()
+
+        latest_price = latest_price[['Date', 'Open', 'High', 'Low', 'Close']]
+        latest_price['Date'] = pd.to_datetime(latest_price['Date'])
+        latest_price.set_index('Date', drop=True, inplace=True)
+
+        return latest_price
+
+    latest_price = get_latest_price()
+
     pilihan3 = st.selectbox(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols3, key='chart_next_predict')
     pilihan3_str = str(pilihan3)
     data_prediction = upcoming_prediction[pilihan3]
     data_prediction = data_prediction[start_predict:]
+
     st.subheader(f"Berikut data {dropdown} {pilihan3_str} yang akan datang")
     st.dataframe(
         data_prediction, use_container_width=True)
@@ -197,6 +222,8 @@ if len(dropdown) > 0:
             pilihan3], label=f'Harga {pilihan3_str} Terkini')
     ax.plot(upcoming_prediction.loc['2023-01-01':,
             pilihan3], label=f'Harga {pilihan3_str} yang akan datang')
+    ax.plot(latest_price.loc['2023-01-01':, pilihan3],
+            label=f'Harga {pilihan3_str} terbaru')
     plt.setp(ax.xaxis.get_majorticklabels(), rotation=45)
     ax.set_xlabel('Tanggal', size=15)
     ax.set_ylabel(f'{dropdown} Price', size=15)
