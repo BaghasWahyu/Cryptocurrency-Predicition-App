@@ -258,7 +258,7 @@ if len(dropdown) > 0:
         )
     with download_btn_latest:
         st.download_button(
-            labelf=f"Download {dropdown} Latest Data",
+            label=f"Download {dropdown} Latest Data",
             data=buffer,
             file_name=f'{dropdown}_latest.xlsx',
             mime='application/vnd.ms-excel',
