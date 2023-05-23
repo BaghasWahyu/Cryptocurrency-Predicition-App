@@ -240,7 +240,7 @@ if len(dropdown) > 0:
 
     download_btn_all, download_btn_pred, download_btn_latest = st.columns(3)
     buffer = io.BytesIO()
-    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
         upcoming_prediction.to_excel(writer)
     with download_btn_pred:
         st.download_button(
