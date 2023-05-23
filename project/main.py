@@ -35,7 +35,7 @@ MMS = MinMaxScaler(feature_range=(0, 1))
 @st.cache_data
 def convert_df_to_excel(dataframe):
     buffer = io.BytesIO()
-    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+    with pd.ExcelWriter(buffer) as writer:
         dataframe.to_excel(writer, index=False)
 
 
