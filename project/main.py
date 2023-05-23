@@ -11,9 +11,7 @@ from sklearn.preprocessing import MinMaxScaler
 st.title("Prediksi Performa Cryptocurrencies")
 
 st.markdown(
-    "Disini terdapat 5 Cryptocurrency berdasarkan kapitalisasi pasar tertinggi")
-
-# st.session_state
+    "5 Cryptocurrency berdasarkan kapitalisasi pasar tertinggi")
 
 
 def create_sequence(dataset):
@@ -31,19 +29,11 @@ def create_sequence(dataset):
 
 MMS = MinMaxScaler(feature_range=(0, 1))
 
-
-# @st.cache_data
-# def convert_df_to_excel():
-#     buffer = io.BytesIO()
-#     with pd.ExcelWriter(buffer) as writer:
-#         dataframe.to_excel(writer, index=False)
-
-
 if 'input_crypto' not in st.session_state:
     st.session_state['input_crypto'] = 'BTC'
 
 if 'input_start' not in st.session_state:
-    st.session_state['input_start'] = pd.to_datetime("2022-12-31")
+    st.session_state['input_start'] = pd.to_datetime("2023-01-01")
 
 if 'input_end' not in st.session_state:
     st.session_state['input_end'] = pd.to_datetime("today")
@@ -73,7 +63,7 @@ dropdown = st.selectbox(
 
 if dropdown:
     start_predict = st.date_input(
-        "Tanggal Awal Prediksi", value=pd.to_datetime("2022-12-31"), min_value=pd.to_datetime("2022-12-31"), key='input_start')
+        "Tanggal Awal Prediksi", value=pd.to_datetime("2023-01-01"), min_value=pd.to_datetime("20223-01-01"), key='input_start')
 
     end_predict = st.date_input("Tanggal Akhir Prediksi",
                                 value=pd.to_datetime("today"), key='input_end')
