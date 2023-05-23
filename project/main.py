@@ -32,11 +32,11 @@ def create_sequence(dataset):
 MMS = MinMaxScaler(feature_range=(0, 1))
 
 
-@st.cache_data
-def convert_df_to_excel(dataframe):
-    buffer = io.BytesIO()
-    with pd.ExcelWriter(buffer) as writer:
-        dataframe.to_excel(writer, index=False)
+# @st.cache_data
+# def convert_df_to_excel():
+#     buffer = io.BytesIO()
+#     with pd.ExcelWriter(buffer) as writer:
+#         dataframe.to_excel(writer, index=False)
 
 
 if 'input_crypto' not in st.session_state:
@@ -239,7 +239,9 @@ if len(dropdown) > 0:
         data_combined, use_container_width=True)
 
     download_btn_all, download_btn_pred, download_btn_latest = st.columns(3)
-    excel_pred_data = convert_df_to_excel(upcoming_prediction)
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+        upcoming_prediction.to_excel(writer, sheet_name='Sheet1', index=False)
     with download_btn_pred:
         st.download_button(
             label="Download All Data",
