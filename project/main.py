@@ -32,8 +32,15 @@ MMS = MinMaxScaler(feature_range=(0, 1))
 
 
 @st.cache_data
-def convert_df(df):
-    return df.to_excel()
+def convert_df_to_excel(dataframe):
+    try:
+        dataframe.to_excel()
+        print(f"DataFrame successfully converted and saved as Excel file")
+
+    except Exception as e:
+        print("Error occurred while converting DataFrame to Excel file.")
+        print(e)
+    return dataframe.to_excel()
 
 
 if 'input_crypto' not in st.session_state:
@@ -236,10 +243,11 @@ if len(dropdown) > 0:
         data_combined, use_container_width=True)
 
     download_btn_all, download_btn_pred, download_btn_latest = st.columns(3)
+    excel_pred_data = convert_df_to_excel(upcoming_prediction)
     with download_btn_pred:
         st.download_button(
             label="Download All Data",
-            data=upcoming_prediction,
+            data=excel_pred_data,
             file_name=f'{dropdown}_prediction.xlsx',
             mime='application/vnd.ms-excel',
         )
