@@ -242,11 +242,25 @@ if len(dropdown) > 0:
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
         upcoming_prediction[start_predict:].to_excel(writer)
+    with download_btn_all:
+        st.download_button(
+            label=f"Download {dropdown} All Data",
+            data=buffer,
+            file_name=f'{dropdown}_all.xlsx',
+            mime='application/vnd.ms-excel',
+        )
     with download_btn_pred:
         st.download_button(
-            label="Download Prediction Data",
+            label=f"Download {dropdown} Prediction Data",
             data=buffer,
             file_name=f'{dropdown}_prediction.xlsx',
+            mime='application/vnd.ms-excel',
+        )
+    with download_btn_latest:
+        st.download_button(
+            labelf=f"Download {dropdown} Latest Data",
+            data=buffer,
+            file_name=f'{dropdown}_latest.xlsx',
             mime='application/vnd.ms-excel',
         )
 
