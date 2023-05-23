@@ -264,7 +264,7 @@ if len(dropdown) > 0:
         )
 
     diff_col_name_latest_price_excel = io.BytesIO()
-    with pd.ExcelWriter(pred_data_excel, engine='xlsxwriter') as writer:
+    with pd.ExcelWriter(diff_col_name_latest_price_excel, engine='xlsxwriter') as writer:
         diff_col_name_latest_price.to_excel(writer)
     with download_btn_latest:
         st.download_button(
