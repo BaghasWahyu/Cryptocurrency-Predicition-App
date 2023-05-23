@@ -84,7 +84,7 @@ if len(dropdown) > 0:
         f"./data_historis/{dropdown}_data_historis.xlsx", index_col=0, parse_dates=True)
     df = pd.DataFrame(data_historis)
 
-    with open(f"./data_historis/{dropdown}_data_historis.xlsx") as file_historis:
+    with open(f"./data_historis/{dropdown}_data_historis.xlsx", "r") as file_historis:
         btn_historis_data = st.download_button(
             label="Download Data Historis",
             data=file_historis,
