@@ -67,15 +67,13 @@ def load_trained_model(path_to_model):
 
 dropdown = st.selectbox(
     "Pilih Salah Satu Cryptocurrency", symbolCrypto, key='input_crypto')
-# st.write(st.session_state.input_crypto)
+
 if dropdown:
     start_predict = st.date_input(
         "Tanggal Awal Prediksi", value=pd.to_datetime("2022-12-31"), min_value=pd.to_datetime("2022-12-31"), key='input_start')
-    # st.write(st.session_state.input_start)
 
     end_predict = st.date_input("Tanggal Akhir Prediksi",
                                 value=pd.to_datetime("today"), key='input_end')
-    # st.write(st.session_state.input_end)
 
 
 periode = (start_predict - end_predict).days - 1
@@ -85,6 +83,15 @@ if len(dropdown) > 0:
     data_historis = pd.read_excel(
         f"./data_historis/{dropdown}_data_historis.xlsx", index_col=0, parse_dates=True)
     df = pd.DataFrame(data_historis)
+
+    download_historis = st.columns(1)
+    with download_historis:
+        st.download_button(
+            label="Download Data Historis",
+            data=data_historis,
+            file_name=f'{dropdown}_data_historis.xlsx',
+            mime='application/vnd.ms-excel',
+        )
 
     cols1 = df.columns.tolist()
 
@@ -224,12 +231,19 @@ if len(dropdown) > 0:
     # print(type(data_prediction))
     data_combined = pd.concat(
         [data_prediction, diff_col_name_latest_price[pilihan3_latest]], axis=1)
-    # data_combined = data_combined.rename(
-    #     columns={pilihan3_str: f'{pilihan3_str}_Prediction', pilihan3_str: f'{pilihan3_str}Latest'})
 
     st.subheader(f"Berikut data {dropdown} {pilihan3_str} yang akan datang")
     st.dataframe(
         data_combined, use_container_width=True)
+
+    download_btn_all, download_btn_pred, download_btn_latest = st.columns(3)
+    with download_btn_pred:
+        st.download_button(
+            label="Download All Data",
+            data=upcoming_prediction,
+            file_name=f'{dropdown}_prediction.xlsx',
+            mime='application/vnd.ms-excel',
+        )
 
     fig, ax = plt.subplots(figsize=(20, 10))
     ax.plot(new_pred_data.loc['2022-01-01':,
