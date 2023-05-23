@@ -34,13 +34,16 @@ MMS = MinMaxScaler(feature_range=(0, 1))
 @st.cache_data
 def convert_df_to_excel(dataframe):
     try:
-        dataframe.to_excel()
-        print(f"DataFrame successfully converted and saved as Excel file")
-
+        # Create a temporary in-memory Excel file
+        excel_file = io.BytesIO()
+        with pd.ExcelWriter(excel_file, engine='xlsxwriter') as writer:
+            dataframe.to_excel(writer, index=False)
+            writer.save()
+        excel_file.seek(0)
+        return excel_file
     except Exception as e:
-        print("Error occurred while converting DataFrame to Excel file.")
-        print(e)
-    return dataframe.to_excel()
+        st.error("Error occurred while converting DataFrame to Excel file.")
+        st.error(e)
 
 
 if 'input_crypto' not in st.session_state:
