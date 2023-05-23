@@ -63,7 +63,7 @@ dropdown = st.selectbox(
 
 if dropdown:
     start_predict = st.date_input(
-        "Tanggal Awal Prediksi", value=pd.to_datetime("2023-01-01"), min_value=pd.to_datetime("20223-01-01"), key='input_start')
+        "Tanggal Awal Prediksi", value=pd.to_datetime("2023-01-01"), min_value=pd.to_datetime("2023-01-01"), key='input_start')
 
     end_predict = st.date_input("Tanggal Akhir Prediksi",
                                 value=pd.to_datetime("today"), key='input_end')
