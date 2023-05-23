@@ -86,12 +86,13 @@ if len(dropdown) > 0:
 
     download_historis = st.columns(1)
     with download_historis:
-        st.download_button(
-            label="Download Data Historis",
-            data=data_historis,
-            file_name=f'{dropdown}_data_historis.xlsx',
-            mime='application/vnd.ms-excel',
-        )
+        with open(f"./data_historis/{dropdown}_data_historis.xlsx") as file_historis:
+            st.download_button(
+                label="Download Data Historis",
+                data=file_historis,
+                file_name=f'{dropdown}_data_historis.xlsx',
+                mime='application/vnd.ms-excel',
+            )
 
     cols1 = df.columns.tolist()
 
