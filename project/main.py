@@ -251,6 +251,7 @@ if len(dropdown) > 0:
             file_name=f'{dropdown}_all.xlsx',
             mime='application/vnd.ms-excel',
         )
+
     pred_data_excel = io.BytesIO()
     with pd.ExcelWriter(pred_data_excel, engine='xlsxwriter') as writer:
         upcoming_prediction[start_predict:].to_excel(writer)
@@ -261,13 +262,17 @@ if len(dropdown) > 0:
             file_name=f'{dropdown}_prediction.xlsx',
             mime='application/vnd.ms-excel',
         )
-    # with download_btn_latest:
-    #     st.download_button(
-    #         label=f"Download {dropdown} Latest Data",
-    #         data=buffer,
-    #         file_name=f'{dropdown}_latest.xlsx',
-    #         mime='application/vnd.ms-excel',
-    #     )
+
+    diff_col_name_latest_price_excel = io.BytesIO()
+    with pd.ExcelWriter(pred_data_excel, engine='xlsxwriter') as writer:
+        diff_col_name_latest_price.to_excel(writer)
+    with download_btn_latest:
+        st.download_button(
+            label=f"Download {dropdown} Latest Data",
+            data=diff_col_name_latest_price_excel,
+            file_name=f'{dropdown}_latest.xlsx',
+            mime='application/vnd.ms-excel',
+        )
 
     fig, ax = plt.subplots(figsize=(20, 10))
     ax.plot(new_pred_data.loc['2022-01-01':,
