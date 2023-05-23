@@ -161,7 +161,7 @@ if len(dropdown) > 0:
     else:
         st.warning('Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!')
     new_rows = pd.DataFrame(index=pd.date_range(
-        start=start_predict,  end=end_predict, freq='D', inclusive='right'), columns=new_data.columns[:4])
+        start=new_data.index[-1],  end=end_predict, freq='D', inclusive='right'), columns=new_data.columns[:4])
     new_pred_data = pd.concat([new_data.drop(columns=['open_predicted', 'high_predicted',
                                                       'low_predicted', 'close_predicted'], axis=0), new_rows], axis=0)
     upcoming_prediction = pd.DataFrame(
