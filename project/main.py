@@ -245,7 +245,7 @@ if len(dropdown) > 0:
     with download_btn_pred:
         st.download_button(
             label="Download All Data",
-            data=excel_pred_data,
+            data=buffer,
             file_name=f'{dropdown}_prediction.xlsx',
             mime='application/vnd.ms-excel',
         )
