@@ -231,7 +231,7 @@ if len(dropdown) > 0:
     data_prediction = upcoming_prediction[pilihan3]
     data_prediction = data_prediction[start_predict:]
     all_data_combined = pd.concat(
-        [data_prediction, diff_col_name_latest_price], axis=1)
+        [upcoming_prediction[start_predict:], diff_col_name_latest_price], axis=1)
     data_combined = pd.concat(
         [data_prediction, diff_col_name_latest_price[pilihan3_latest]], axis=1)
 
