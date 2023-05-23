@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scrape import symbolCrypto
 import numpy as np
+import io
 from cryptocmd import CmcScraper
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
@@ -33,17 +34,9 @@ MMS = MinMaxScaler(feature_range=(0, 1))
 
 @st.cache_data
 def convert_df_to_excel(dataframe):
-    try:
-        # Create a temporary in-memory Excel file
-        excel_file = io.BytesIO()
-        with pd.ExcelWriter(excel_file, engine='xlsxwriter') as writer:
-            dataframe.to_excel(writer, index=False)
-            writer.save()
-        excel_file.seek(0)
-        return excel_file
-    except Exception as e:
-        st.error("Error occurred while converting DataFrame to Excel file.")
-        st.error(e)
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        dataframe.to_excel(writer, index=False)
 
 
 if 'input_crypto' not in st.session_state:
