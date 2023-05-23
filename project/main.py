@@ -230,7 +230,8 @@ if len(dropdown) > 0:
     pilihan3_latest = (f'{pilihan3}_Latest')
     data_prediction = upcoming_prediction[pilihan3]
     data_prediction = data_prediction[start_predict:]
-    # print(type(data_prediction))
+    all_data_combined = pd.concat(
+        [data_prediction, diff_col_name_latest_price], axis=1)
     data_combined = pd.concat(
         [data_prediction, diff_col_name_latest_price[pilihan3_latest]], axis=1)
 
@@ -239,27 +240,31 @@ if len(dropdown) > 0:
         data_combined, use_container_width=True)
 
     download_btn_all, download_btn_pred, download_btn_latest = st.columns(3)
-    buffer = io.BytesIO()
-    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-        upcoming_prediction[start_predict:].to_excel(writer)
+
+    all_data_excel = io.BytesIO()
+    with pd.ExcelWriter(all_data_excel, engine='xlsxwriter') as writer:
+        all_data_combined.to_excel(writer)
     with download_btn_all:
         st.download_button(
             label=f"Download {dropdown} All Data",
-            data=buffer,
+            data=all_data_excel,
             file_name=f'{dropdown}_all.xlsx',
             mime='application/vnd.ms-excel',
         )
+    pred_data_excel = io.BytesIO()
+    with pd.ExcelWriter(pred_data_excel, engine='xlsxwriter') as writer:
+        upcoming_prediction[start_predict:].to_excel(writer)
     with download_btn_pred:
         st.download_button(
             label=f"Download {dropdown} Prediction Data",
-            data=buffer,
+            data=pred_data_excel,
             file_name=f'{dropdown}_prediction.xlsx',
             mime='application/vnd.ms-excel',
         )
     with download_btn_latest:
         st.download_button(
             label=f"Download {dropdown} Latest Data",
-            data=buffer,
+            # data=buffer,
             file_name=f'{dropdown}_latest.xlsx',
             mime='application/vnd.ms-excel',
         )
