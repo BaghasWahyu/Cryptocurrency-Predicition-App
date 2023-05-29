@@ -95,7 +95,7 @@ if len(dropdown) > 0:
     else:
         st.warning('Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!')
 
-    pilihan1_5 = st.multiselect(
+    pilihan1_5 = st.selectbox(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols1_5, default=["Volume"], key='chart_crypto_2')
     if pilihan1_5:
         data1_5 = df[pilihan1_5 + ["Date"]]
