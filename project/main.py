@@ -131,7 +131,7 @@ if len(dropdown) > 0:
     loaded_model = load_trained_model(
         f'./model/{dropdown}_model')
 
-    st.markdown(loaded_model.summary())
+    # st.markdown(loaded_model.summary())
 
     test_predicted = loaded_model.predict(test_seq)
     test_inverse_predicted = MMS.inverse_transform(test_predicted)
