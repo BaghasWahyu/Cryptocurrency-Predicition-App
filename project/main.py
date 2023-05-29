@@ -94,7 +94,6 @@ if len(dropdown) > 0:
     st.dataframe(df, use_container_width=True)
     pilihan1 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols1, key='chart_crypto_1', default=['Open'])
-    # st.write(st.session_state.chart_crypto_1)
     if pilihan1:
         data1 = df[pilihan1 + ["Date"]]
         st.line_chart(data1, x="Date", y=pilihan1)
@@ -125,7 +124,7 @@ if len(dropdown) > 0:
     crypto_data[crypto_data.columns] = MMS.fit_transform(
         crypto_data)
 
-    training_size = round(len(crypto_data) * 0.90)
+    training_size = round(len(crypto_data) * 0.80)
     train_data = crypto_data[:training_size]
     test_data = crypto_data[training_size:]
 
@@ -183,13 +182,13 @@ if len(dropdown) > 0:
     cols3 = upcoming_prediction.columns.tolist()
 
     @st.cache_data
-    def get_latest_price():
+    def get_latest_price(cryptocurrency, start_predict, end_predict):
         latest_date_start = start_predict.strftime("%d-%m-%Y")
 
         latest_date_end = end_predict.strftime("%d-%m-%Y")
 
         latest_scraper = CmcScraper(
-            dropdown, latest_date_start, latest_date_end)
+            cryptocurrency, latest_date_start, latest_date_end)
         latest_price = latest_scraper.get_dataframe()
 
         latest_price['Open'] = latest_price['Open'].apply(
@@ -209,7 +208,7 @@ if len(dropdown) > 0:
 
         return latest_price
 
-    latest_price = get_latest_price()
+    latest_price = get_latest_price(dropdown, start_predict, end_predict)
 
     diff_col_name_latest_price = latest_price.rename(
         columns={'Open': 'Open_Latest', 'High': 'High_Latest', 'Low': 'Low_Latest', 'Close': 'Close_Latest'})
