@@ -14,19 +14,6 @@ st.markdown(
     "5 Cryptocurrency berdasarkan kapitalisasi pasar tertinggi")
 
 
-def create_sequence(dataset):
-    sequences = []
-    labels = []
-
-    start_idx = 0
-
-    for stop_idx in range(1, len(dataset)):
-        sequences.append(dataset.iloc[start_idx:stop_idx])
-        labels.append(dataset.iloc[stop_idx])
-        start_idx += 1
-    return (np.array(sequences), np.array(labels))
-
-
 MMS = MinMaxScaler(feature_range=(0, 1))
 
 if 'input_crypto' not in st.session_state:
@@ -67,7 +54,6 @@ if dropdown:
 
     end_predict = st.date_input("Tanggal Akhir Prediksi",
                                 value=pd.to_datetime("today"), key='input_end')
-
 
 periode = (start_predict - end_predict).days - 1
 
@@ -111,7 +97,6 @@ if len(dropdown) > 0:
 
     pilihan1_5 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols1_5, default=["Volume"], key='chart_crypto_2')
-    # st.write(st.session_state.chart_crypto_2)
     if pilihan1_5:
         data1_5 = df[pilihan1_5 + ["Date"]]
         st.line_chart(data1_5, x="Date", y=pilihan1_5)
@@ -128,13 +113,25 @@ if len(dropdown) > 0:
     train_data = crypto_data[:training_size]
     test_data = crypto_data[training_size:]
 
+    def create_sequence(dataset):
+        sequences = []
+        labels = []
+
+        start_idx = 0
+
+        for stop_idx in range(10, len(dataset)):
+            sequences.append(dataset.iloc[start_idx:stop_idx])
+            labels.append(dataset.iloc[stop_idx])
+            start_idx += 1
+        return (np.array(sequences), np.array(labels))
+
     train_seq, train_label = create_sequence(train_data)
     test_seq, test_label = create_sequence(test_data)
 
-    new_model = load_trained_model(
+    loaded_model = load_trained_model(
         f'./model/{dropdown}_model')
 
-    test_predicted = new_model.predict(test_seq)
+    test_predicted = loaded_model.predict(test_seq)
     test_inverse_predicted = MMS.inverse_transform(test_predicted)
     test_inverse = MMS.inverse_transform(test_label)
     rmse = np.sqrt(
@@ -171,7 +168,7 @@ if len(dropdown) > 0:
     current_seq = test_seq[-1:]
 
     for i in range(periode, 0):
-        up_pred = new_model.predict(current_seq)
+        up_pred = loaded_model.predict(current_seq)
         upcoming_prediction.iloc[i] = up_pred
         current_seq = np.append(current_seq[0][1:], up_pred, axis=0)
         current_seq = current_seq.reshape(test_seq[-1:].shape)
