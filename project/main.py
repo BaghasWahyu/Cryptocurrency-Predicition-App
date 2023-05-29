@@ -29,7 +29,7 @@ if 'chart_crypto_1' not in st.session_state:
     st.session_state['chart_crypto_1'] = ['Open']
 
 if 'chart_crypto_2' not in st.session_state:
-    st.session_state['chart_crypto_2'] = ''
+    st.session_state['chart_crypto_2'] = 'Volume'
 
 if 'chart_predict' not in st.session_state:
     st.session_state['chart_predict'] = ['Open', 'open_predicted']
