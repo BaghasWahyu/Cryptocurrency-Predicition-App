@@ -119,7 +119,7 @@ if len(dropdown) > 0:
 
         start_idx = 0
 
-        for stop_idx in range(10, len(dataset)):
+        for stop_idx in range(1, len(dataset)):
             sequences.append(dataset.iloc[start_idx:stop_idx])
             labels.append(dataset.iloc[stop_idx])
             start_idx += 1
