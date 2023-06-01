@@ -29,7 +29,7 @@ if 'chart_crypto_1' not in st.session_state:
     st.session_state['chart_crypto_1'] = ['Open']
 
 if 'chart_crypto_2' not in st.session_state:
-    st.session_state['chart_crypto_2'] = 'Volume'
+    st.session_state['chart_crypto_2'] = ['Volume']
 
 if 'chart_predict' not in st.session_state:
     st.session_state['chart_predict'] = ['Open', 'open_predicted']
@@ -55,7 +55,7 @@ if dropdown:
     end_predict = st.date_input("Tanggal Akhir Prediksi",
                                 value=pd.to_datetime("today"), key='input_end')
 
-periode = (start_predict - end_predict).days - 1
+period = (start_predict - end_predict).days - 1
 
 if len(dropdown) > 0:
     st.subheader(f'Berikut data historis {dropdown} 2019-2022')
@@ -78,11 +78,11 @@ if len(dropdown) > 0:
     cols1.remove("Market Cap")
 
     st.dataframe(df, use_container_width=True)
-    pilihan1 = st.multiselect(
+    option1 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols1, key='chart_crypto_1', default=['Open'])
-    if pilihan1:
-        data1 = df[pilihan1 + ["Date"]]
-        st.line_chart(data1, x="Date", y=pilihan1)
+    if option1:
+        data1 = df[option1 + ["Date"]]
+        st.line_chart(data1, x="Date", y=option1)
 
         cols1_5 = df.columns.tolist()
 
@@ -95,11 +95,11 @@ if len(dropdown) > 0:
     else:
         st.warning('Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!')
 
-    pilihan1_5 = st.multiselect(
+    option1_5 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols1_5, default=["Volume"], key='chart_crypto_2')
-    if pilihan1_5:
-        data1_5 = df[pilihan1_5 + ["Date"]]
-        st.line_chart(data1_5, x="Date", y=pilihan1_5)
+    if option1_5:
+        data1_5 = df[option1_5 + ["Date"]]
+        st.line_chart(data1_5, x="Date", y=option1_5)
     else:
         st.warning('Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!')
 
@@ -151,11 +151,11 @@ if len(dropdown) > 0:
     cols2 = new_data.columns.tolist()
     st.subheader(f'Berikut data {dropdown} Terkini dan yang Teprediksi')
     st.dataframe(new_data, use_container_width=True)
-    pilihan2 = st.multiselect(
+    option2 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols2, default=["Open", "open_predicted"], key="chart_predict")
-    if pilihan2:
-        data = new_data[pilihan2]
-        st.line_chart(data, y=pilihan2)
+    if option2:
+        data = new_data[option2]
+        st.line_chart(data, y=option2)
     else:
         st.warning('Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!')
     new_rows = pd.DataFrame(index=pd.date_range(
@@ -169,7 +169,7 @@ if len(dropdown) > 0:
 
     current_seq = test_seq[-1:]
 
-    for i in range(periode, 0):
+    for i in range(period, 0):
         up_pred = loaded_model.predict(current_seq)
         upcoming_prediction.iloc[i] = up_pred
         current_seq = np.append(current_seq[0][1:], up_pred, axis=0)
@@ -212,18 +212,18 @@ if len(dropdown) > 0:
     diff_col_name_latest_price = latest_price.rename(
         columns={'Open': 'Open_Latest', 'High': 'High_Latest', 'Low': 'Low_Latest', 'Close': 'Close_Latest'})
 
-    pilihan3 = st.selectbox(
+    option3 = st.selectbox(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols3, key='chart_next_predict')
-    pilihan3_str = str(pilihan3)
-    pilihan3_latest = (f'{pilihan3}_Latest')
-    data_prediction = upcoming_prediction[pilihan3]
+    option3_str = str(option3)
+    option3_latest = (f'{option3}_Latest')
+    data_prediction = upcoming_prediction[option3]
     data_prediction = data_prediction[start_predict:]
     all_data_combined = pd.concat(
         [upcoming_prediction[start_predict:], diff_col_name_latest_price], axis=1)
     data_combined = pd.concat(
-        [data_prediction, diff_col_name_latest_price[pilihan3_latest]], axis=1)
+        [data_prediction, diff_col_name_latest_price[option3_latest]], axis=1)
 
-    st.subheader(f"Berikut data {dropdown} {pilihan3_str} yang akan datang")
+    st.subheader(f"Berikut data {dropdown} {option3_str} yang akan datang")
     st.dataframe(
         data_combined, use_container_width=True)
 
@@ -264,16 +264,16 @@ if len(dropdown) > 0:
 
     fig, ax = plt.subplots(figsize=(20, 10))
     ax.plot(new_pred_data.loc['2022-01-01':,
-            pilihan3], label=f'Harga {pilihan3_str} Terkini')
+            option3], label=f'Harga {option3_str} Terkini')
     ax.plot(upcoming_prediction.loc['2023-01-01':,
-            pilihan3], label=f'Harga {pilihan3_str} yang akan datang')
-    ax.plot(latest_price.loc['2023-01-01':, pilihan3],
-            label=f'Harga {pilihan3_str} terbaru')
+            option3], label=f'Harga {option3_str} yang akan datang')
+    ax.plot(latest_price.loc['2023-01-01':, option3],
+            label=f'Harga {option3_str} terbaru')
     plt.setp(ax.xaxis.get_majorticklabels(), rotation=45)
     ax.set_xlabel('Tanggal', size=15)
     ax.set_ylabel(f'{dropdown} Price', size=15)
     ax.set_title(
-        f'Peramalan harga {dropdown} {pilihan3_str} yang akan datang', size=15)
+        f'Peramalan harga {dropdown} {option3_str} yang akan datang', size=15)
     ax.legend()
 
     st.pyplot(fig)
