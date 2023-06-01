@@ -109,7 +109,7 @@ if len(dropdown) > 0:
     crypto_data[crypto_data.columns] = MMS.fit_transform(
         crypto_data)
 
-    training_size = round(len(crypto_data) * 0.80)
+    training_size = round(len(crypto_data) * 0.90)
     train_data = crypto_data[:training_size]
     test_data = crypto_data[training_size:]
 
