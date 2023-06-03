@@ -113,6 +113,12 @@ if len(dropdown) > 0:
     train_data = crypto_data[:training_size]
     test_data = crypto_data[training_size:]
 
+    total_test_data, total_train_data = st.columns(2)
+    with total_train_data:
+        st.markdown(f"Jumlah Data Latih adalah: {train_data}")
+    with total_test_data:
+        st.markdown(f"Jumlah Data Latih adalah: {test_data}")
+
     def create_sequence(dataset):
         sequences = []
         labels = []
