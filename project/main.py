@@ -246,6 +246,7 @@ if len(dropdown) > 0:
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols3, key='chart_next_predict')
     option3_str = str(option3)
     option3_latest = (f'{option3}_Latest')
+    option3_future = (f'{option3}_Future')
     data_prediction = upcoming_prediction[option3]
     data_prediction = data_prediction[start_predict:]
     data_combined = pd.concat(
