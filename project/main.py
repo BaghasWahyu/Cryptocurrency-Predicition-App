@@ -113,11 +113,16 @@ if len(dropdown) > 0:
     train_data = crypto_data[:training_size]
     test_data = crypto_data[training_size:]
 
-    total_test_data, total_train_data = st.columns(2)
+    total_train_data, total_test_data = st.columns(2)
     with total_train_data:
         st.markdown(f"Jumlah Data Latih adalah: {len(train_data)}")
+        st.write(f"Berikut Data Latih yang sudah dilakukan proses Min Max Scaling")
+        st.write(pd.DataFrame(train_data))
     with total_test_data:
         st.markdown(f"Jumlah Data Uji adalah: {len(test_data)}")
+        st.markdown(
+            f"Berikut Data Uji yang sudah dilakukan proses Min Max Scaling")
+        st.write(pd.DataFrame(test_data))
 
     def create_sequence(dataset):
         sequences = []
