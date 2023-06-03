@@ -115,9 +115,9 @@ if len(dropdown) > 0:
 
     total_test_data, total_train_data = st.columns(2)
     with total_train_data:
-        st.markdown(f"Jumlah Data Latih adalah: {train_data}")
+        st.markdown(f"Jumlah Data Latih adalah: {len(train_data)}")
     with total_test_data:
-        st.markdown(f"Jumlah Data Latih adalah: {test_data}")
+        st.markdown(f"Jumlah Data Uji adalah: {len(test_data)}")
 
     def create_sequence(dataset):
         sequences = []
