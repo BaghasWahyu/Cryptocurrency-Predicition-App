@@ -153,13 +153,11 @@ if len(dropdown) > 0:
     test_predicted = loaded_model.predict(test_seq)
     test_inverse_predicted = MMS.inverse_transform(test_predicted)
     test_inverse = MMS.inverse_transform(test_label)
-    st.write("test_inverse_predicted:", len(test_inverse_predicted))
-    st.write("test_inverse:", len(test_inverse))
 
-    rmse = np.sqrt(
+    RMSE = np.sqrt(
         np.mean(((test_inverse_predicted - test_inverse)**2)))
 
-    st.markdown(f"Skor RMSE yang dihasilkan adalah {rmse}")
+    st.markdown(f"Skor RMSE yang dihasilkan adalah {RMSE}")
 
     data_value = -test_inverse_predicted.shape[0]
 
