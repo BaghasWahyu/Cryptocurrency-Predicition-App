@@ -139,11 +139,15 @@ if len(dropdown) > 0:
     train_seq, train_label = create_sequence(train_data)
     test_seq, test_label = create_sequence(test_data)
     st.write("train sequence")
+    st.write(train_seq[0])
     st.write(train_seq[1])
+    st.write(train_seq[2])
     st.write("train label")
     st.write(train_label)
     st.write("test sequence")
+    st.write(test_seq[0])
     st.write(test_seq[1])
+    st.write(test_seq[2])
     st.write("test label")
     st.write(test_label)
 
@@ -159,10 +163,10 @@ if len(dropdown) > 0:
 
     st.markdown(f"Skor RMSE yang dihasilkan adalah {RMSE}")
 
-    data_value = -test_inverse_predicted.shape[0]
+    test_inverse_predicted_shape_negative = -test_inverse_predicted.shape[0]
 
-    new_data = pd.concat([crypto_data.iloc[data_value:].copy(), pd.DataFrame(test_inverse_predicted, columns=[
-        'open_predicted', 'high_predicted', 'low_predicted', 'close_predicted'], index=crypto_data.iloc[data_value:].index)], axis=1)
+    new_data = pd.concat([crypto_data.iloc[test_inverse_predicted_shape_negative:].copy(), pd.DataFrame(test_inverse_predicted, columns=[
+        'open_predicted', 'high_predicted', 'low_predicted', 'close_predicted'], index=crypto_data.iloc[test_inverse_predicted_shape_negative:].index)], axis=1)
     new_data[['Open', 'High', 'Low', 'Close']] = MMS.inverse_transform(
         new_data[['Open', 'High', 'Low', 'Close']])
 
