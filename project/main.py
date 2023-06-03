@@ -138,11 +138,14 @@ if len(dropdown) > 0:
 
     train_seq, train_label = create_sequence(train_data)
     test_seq, test_label = create_sequence(test_data)
-
-    st.write("train sequence", train_seq)
-    st.write("train label", train_seq)
-    st.write("test sequence", train_seq)
-    st.write("test label", train_seq)
+    st.write("train sequence")
+    st.table(train_seq)
+    st.write("train label")
+    st.table(train_label)
+    st.write("test sequence")
+    st.table(test_seq)
+    st.write("test label")
+    st.table(test_label)
 
     loaded_model = load_trained_model(
         f'./model/{dropdown}_model')
@@ -150,6 +153,9 @@ if len(dropdown) > 0:
     test_predicted = loaded_model.predict(test_seq)
     test_inverse_predicted = MMS.inverse_transform(test_predicted)
     test_inverse = MMS.inverse_transform(test_label)
+    st.write("test_inverse_predicted:", len(test_inverse_predicted))
+    st.write("test_inverse:", len(test_inverse))
+
     rmse = np.sqrt(
         np.mean(((test_inverse_predicted - test_inverse)**2)))
 
