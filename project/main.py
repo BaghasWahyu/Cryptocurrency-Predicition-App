@@ -131,8 +131,6 @@ if len(dropdown) > 0:
     loaded_model = load_trained_model(
         f'./model/{dropdown}_model')
 
-    # st.markdown(loaded_model.summary())
-
     test_predicted = loaded_model.predict(test_seq)
     test_inverse_predicted = MMS.inverse_transform(test_predicted)
     test_inverse = MMS.inverse_transform(test_label)
@@ -223,7 +221,7 @@ if len(dropdown) > 0:
     data_combined = pd.concat(
         [data_prediction, diff_col_name_latest_price[option3_latest]], axis=1)
 
-    st.subheader(f"Berikut data {dropdown} {option3_str} yang akan datang")
+    st.subheader(f"Berikut harga {dropdown} {option3_str} yang akan datang")
     st.dataframe(
         data_combined, use_container_width=True)
 
