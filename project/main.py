@@ -139,13 +139,13 @@ if len(dropdown) > 0:
     train_seq, train_label = create_sequence(train_data)
     test_seq, test_label = create_sequence(test_data)
     st.write("train sequence")
-    st.table(train_seq[1:2])
+    st.write(train_seq[1])
     st.write("train label")
-    st.table(train_label)
+    st.write(train_label)
     st.write("test sequence")
-    st.table(test_seq[1:2])
+    st.write(test_seq[1])
     st.write("test label")
-    st.table(test_label)
+    st.write(test_label)
 
     loaded_model = load_trained_model(
         f'./model/{dropdown}_model')
