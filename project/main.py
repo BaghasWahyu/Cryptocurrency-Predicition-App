@@ -116,13 +116,13 @@ if len(dropdown) > 0:
     total_train_data, total_test_data = st.columns(2)
     with total_train_data:
         st.markdown(f"Jumlah Data Latih adalah: {len(train_data)}")
-        st.write(f"Berikut Data Latih yang sudah dilakukan proses Min Max Scaling")
-        st.write(pd.DataFrame(train_data))
+        st.write(f"Berikut Data Latih yang sudah dilakukan proses Min Max Scaling",
+                 pd.DataFrame(train_data))
+
     with total_test_data:
         st.markdown(f"Jumlah Data Uji adalah: {len(test_data)}")
-        st.markdown(
-            f"Berikut Data Uji yang sudah dilakukan proses Min Max Scaling")
-        st.write(pd.DataFrame(test_data))
+        st.write(
+            f"Berikut Data Uji yang sudah dilakukan proses Min Max Scaling", pd.DataFrame(test_data))
 
     def create_sequence(dataset):
         sequences = []
@@ -139,10 +139,10 @@ if len(dropdown) > 0:
     train_seq, train_label = create_sequence(train_data)
     test_seq, test_label = create_sequence(test_data)
 
-    st.write("train sequence", train_seq)
-    st.write("train label", train_seq)
-    st.write("test sequence", train_seq)
-    st.write("test label", train_seq)
+    st.write("train sequence", pd.DataFrame(train_seq))
+    st.write("train label", pd.DataFrame(train_seq))
+    st.write("test sequence", pd.DataFrame(train_seq))
+    st.write("test label", pd.DataFrame(train_seq))
 
     loaded_model = load_trained_model(
         f'./model/{dropdown}_model')
