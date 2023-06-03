@@ -143,7 +143,7 @@ if len(dropdown) > 0:
         st.write("train sequence", train_seq.shape)
         st.write(train_seq[0])
     with train_col_2:
-        st.write(" ", train_seq[1])
+        st.write(train_seq[1])
     with train_col_3:
         st.write("train label", train_label.shape)
         st.write(train_label)
@@ -152,7 +152,7 @@ if len(dropdown) > 0:
         st.write("test sequence", test_seq.shape)
         st.write(test_seq[0])
     with test_col_2:
-        st.write(" ", test_seq[1])
+        st.write(test_seq[1])
     with test_col_3:
         st.write("test label", test_label.shape)
         st.write(test_label)
@@ -239,6 +239,8 @@ if len(dropdown) > 0:
 
     diff_col_name_latest_price = latest_price.rename(
         columns={'Open': 'Open_Latest', 'High': 'High_Latest', 'Low': 'Low_Latest', 'Close': 'Close_Latest'})
+    diff_col_name_upcoming_prediction = upcoming_prediction.rename(
+        columns={'Open': 'Open_Future', 'High': 'High_Future', 'Low': 'Low_Future', 'Close': 'Close_Future'})
 
     option3 = st.selectbox(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols3, key='chart_next_predict')
@@ -246,10 +248,10 @@ if len(dropdown) > 0:
     option3_latest = (f'{option3}_Latest')
     data_prediction = upcoming_prediction[option3]
     data_prediction = data_prediction[start_predict:]
-    all_data_combined = pd.concat(
-        [upcoming_prediction[start_predict:], diff_col_name_latest_price], axis=1)
     data_combined = pd.concat(
         [data_prediction, diff_col_name_latest_price[option3_latest]], axis=1)
+    all_data_combined = pd.concat(
+        [diff_col_name_upcoming_prediction[start_predict:], diff_col_name_latest_price], axis=1)
 
     st.subheader(f"Berikut harga {dropdown} {option3_str} yang akan datang")
     st.dataframe(
