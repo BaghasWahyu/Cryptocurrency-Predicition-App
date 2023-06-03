@@ -138,17 +138,19 @@ if len(dropdown) > 0:
 
     train_seq, train_label = create_sequence(train_data)
     test_seq, test_label = create_sequence(test_data)
-    st.write("train sequence")
-    st.write(train_seq[0])
-    st.write(train_seq[1])
-    st.write(train_seq[2])
-    st.write("train label")
-    st.write(train_label)
-    st.write("test sequence")
+    train_col_1, train_col_2, train_col_3 = st.columns(3)
+    with train_col_1:
+        st.write("train sequence", train_seq.shape)
+        st.write(train_seq[0])
+    with train_col_2:
+        st.write(train_seq[1])
+    with train_col_3:
+        st.write("train label", train_label.shape)
+        st.write(train_label)
+    st.write("test sequence", test_seq.shape)
     st.write(test_seq[0])
     st.write(test_seq[1])
-    st.write(test_seq[2])
-    st.write("test label")
+    st.write("test label", test_label.shape)
     st.write(test_label)
 
     loaded_model = load_trained_model(
