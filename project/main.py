@@ -8,8 +8,6 @@ from cryptocmd import CmcScraper
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 
-st.set_page_config(page_title="Tugas Akhir", layout="wide")
-
 st.title("Prediksi Performa Cryptocurrencies")
 
 st.markdown(

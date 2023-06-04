@@ -3,6 +3,8 @@ import pandas as pd
 import requests
 import streamlit as st
 
+st.set_page_config(page_title="Tugas Akhir", layout="wide")
+
 df = pd.DataFrame()
 
 crypto_name_list = []
