@@ -3,8 +3,6 @@ import pandas as pd
 import requests
 import streamlit as st
 
-st.set_page_config(page_title="Tugas Akhir", layout="wide")
-
 df = pd.DataFrame()
 
 crypto_name_list = []
@@ -63,10 +61,11 @@ def get_symbol():
     return nama_crypto, symbol_crypto
 
 
-nama_crypto, symbol_crypto = get_symbol()
+if __name__ == "__main__":
+    nama_crypto, symbol_crypto = get_symbol()
 
-symbolCrypto = []
+    symbolCrypto = []
 
-for i in symbol_crypto:
-    j = i.replace(' ', '-')
-    symbolCrypto.append(j)
+    for i in symbol_crypto:
+        j = i.replace(' ', '-')
+        symbolCrypto.append(j)

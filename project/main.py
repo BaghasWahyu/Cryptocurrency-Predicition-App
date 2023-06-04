@@ -8,11 +8,12 @@ from cryptocmd import CmcScraper
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 
+st.set_page_config(page_title="Tugas Akhir", layout="wide")
+
 st.title("Prediksi Performa Cryptocurrencies")
 
 st.markdown(
     "5 Cryptocurrency berdasarkan kapitalisasi pasar tertinggi")
-
 
 MMS = MinMaxScaler(feature_range=(0, 1))
 
