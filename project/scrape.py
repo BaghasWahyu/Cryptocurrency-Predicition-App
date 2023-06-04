@@ -64,8 +64,8 @@ def get_symbol():
 if __name__ == "__main__":
     nama_crypto, symbol_crypto = get_symbol()
 
-    symbolCrypto = []
+symbolCrypto = []
 
-    for i in symbol_crypto:
-        j = i.replace(' ', '-')
-        symbolCrypto.append(j)
+for i in symbol_crypto:
+    j = i.replace(' ', '-')
+    symbolCrypto.append(j)
