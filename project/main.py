@@ -138,38 +138,40 @@ if len(dropdown) > 0:
 
     train_seq, train_label = create_sequence(train_data)
     test_seq, test_label = create_sequence(test_data)
-    train_col_1, train_col_2, train_col_3 = st.columns(3)
-    with train_col_1:
-        st.write("Train Sequence", train_seq.shape)
-        st.write(train_seq[0])
-    with train_col_2:
-        st.write(train_seq[1])
-    with train_col_3:
-        st.write("Train label", train_label.shape)
-        st.write(train_label)
-    test_col_1, test_col_2, test_col_3 = st.columns(3)
-    with test_col_1:
-        st.write("Test Sequence", test_seq.shape)
-        st.write(test_seq[0])
-    with test_col_2:
-        st.write(test_seq[1])
-    with test_col_3:
-        st.write("Test Label", test_label.shape)
-        st.write(test_label)
+    with st.expander("Data Latih dan Data Uji"):
+        train_col_1, train_col_2, train_col_3 = st.columns(3)
+        with train_col_1:
+            st.write("Train Sequence", train_seq.shape)
+            st.write(train_seq[0])
+        with train_col_2:
+            st.write(train_seq[1])
+        with train_col_3:
+            st.write("Train label", train_label.shape)
+            st.write(train_label)
+        test_col_1, test_col_2, test_col_3 = st.columns(3)
+        with test_col_1:
+            st.write("Test Sequence", test_seq.shape)
+            st.write(test_seq[0])
+        with test_col_2:
+            st.write(test_seq[1])
+        with test_col_3:
+            st.write("Test Label", test_label.shape)
+            st.write(test_label)
 
     loaded_model = load_trained_model(
         f'./model/{dropdown}_model')
-
-    for layer in loaded_model.layers:
-        if len(layer.get_weights()) > 0:
-            layer_weights = layer.get_weights()[0]
-            layer_bias = layer.get_weights()[1]
-            st.write(layer.name)
-            st.write("Weights:")
-            st.write(layer_weights)
-            st.write("Bias:")
-            st.write(layer_bias)
-            st.write("--------")
+    with st.expander("Ringkasan Model"):
+        st.write(loaded_model.summary())
+        for layer in loaded_model.layers:
+            if len(layer.get_weights()) > 0:
+                layer_weights = layer.get_weights()[0]
+                layer_bias = layer.get_weights()[1]
+                st.write(layer.name)
+                st.write("Weights:")
+                st.write(layer_weights)
+                st.write("Bias:")
+                st.write(layer_bias)
+                st.write("--------")
 
     test_predicted = loaded_model.predict(test_seq)
     test_inverse_predicted = MMS.inverse_transform(test_predicted)
