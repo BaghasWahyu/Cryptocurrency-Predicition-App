@@ -161,7 +161,7 @@ if len(dropdown) > 0:
     loaded_model = load_trained_model(
         f'./model/{dropdown}_model')
     with st.expander("Ringkasan Model"):
-        st.write(loaded_model.summary())
+        st.text(loaded_model.summary())
         for layer in loaded_model.layers:
             if len(layer.get_weights()) > 0:
                 layer_weights = layer.get_weights()[0]
