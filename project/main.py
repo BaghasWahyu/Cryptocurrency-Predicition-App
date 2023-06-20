@@ -3,10 +3,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scrape import symbolCrypto
 import numpy as np
-import io
+import io as io
 from cryptocmd import CmcScraper
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
+
+import altair as alt
 
 st.title("Prediksi Performa Cryptocurrencies")
 
@@ -196,6 +198,12 @@ if len(dropdown) > 0:
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols2, default=["Open", "open_predicted"], key="chart_predict")
     if option2:
         data = new_data[option2]
+        custom_chart = alt.Chart(data).mark_line().encode(
+            x='Date',
+            y=option2,
+            color='Origin'
+        )
+        st.altair_chart(custom_chart)
         st.line_chart(data, y=option2)
     else:
         st.warning('Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!')
@@ -221,7 +229,7 @@ if len(dropdown) > 0:
 
     cols3 = upcoming_prediction.columns.tolist()
 
-    @st.cache_data
+    @ st.cache_data
     def get_latest_price(cryptocurrency, start_predict, end_predict):
         latest_date_start = start_predict.strftime("%d-%m-%Y")
 
