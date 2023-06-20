@@ -43,6 +43,7 @@ def load_trained_model(path_to_model):
         path_to_model)
     return model
 
+
 with st.sidebar:
     dropdown = st.selectbox(
         "Pilih Salah Satu Cryptocurrency", symbolCrypto, key='input_crypto')
@@ -161,6 +162,7 @@ if len(dropdown) > 0:
 
     weights = loaded_model.get_weights()
 
+    st.write("Jumlah layer:", len(loaded_model.layers))
     for i, layer in enumerate(loaded_model.layers):
         st.write("Layer:", i)
         st.write("Bias:")
