@@ -198,9 +198,7 @@ if len(dropdown) > 0:
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols2, default=["Open", "open_predicted"], key="chart_predict")
     if option2:
         data = new_data[option2]
-        custom_chart = alt.Chart(data).mark_line().encode(
-            x='Date',
-        )
+        custom_chart = alt.Chart(data).mark_line()
         st.altair_chart(custom_chart)
         st.line_chart(data, y=option2)
     else:
