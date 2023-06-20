@@ -159,6 +159,15 @@ if len(dropdown) > 0:
     loaded_model = load_trained_model(
         f'./model/{dropdown}_model')
 
+    weights = loaded_model.get_weights()
+
+    for i, layer in enumerate(loaded_model.layers):
+        st.write("Layer:", i)
+        st.write("Bias:")
+        st.write(weights[2*i])
+        st.write("Weights:")
+        st.write(weights[2*i+1])
+
     test_predicted = loaded_model.predict(test_seq)
     test_inverse_predicted = MMS.inverse_transform(test_predicted)
     test_inverse = MMS.inverse_transform(test_label)
