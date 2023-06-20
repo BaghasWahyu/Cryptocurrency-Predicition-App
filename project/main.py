@@ -43,18 +43,18 @@ def load_trained_model(path_to_model):
         path_to_model)
     return model
 
+with st.sidebar:
+    dropdown = st.selectbox(
+        "Pilih Salah Satu Cryptocurrency", symbolCrypto, key='input_crypto')
 
-dropdown = st.selectbox(
-    "Pilih Salah Satu Cryptocurrency", symbolCrypto, key='input_crypto')
+    if dropdown:
+        start_predict = st.date_input(
+            "Tanggal Awal Prediksi", value=pd.to_datetime("2023-01-01"), min_value=pd.to_datetime("2023-01-01"), key='input_start')
 
-if dropdown:
-    start_predict = st.date_input(
-        "Tanggal Awal Prediksi", value=pd.to_datetime("2023-01-01"), min_value=pd.to_datetime("2023-01-01"), key='input_start')
+        end_predict = st.date_input("Tanggal Akhir Prediksi",
+                                    value=pd.to_datetime("today"), key='input_end')
 
-    end_predict = st.date_input("Tanggal Akhir Prediksi",
-                                value=pd.to_datetime("today"), key='input_end')
-
-period = (start_predict - end_predict).days - 1
+    period = (start_predict - end_predict).days - 1
 
 if len(dropdown) > 0:
     st.subheader(f'Berikut data historis {dropdown} 2019-2022')
