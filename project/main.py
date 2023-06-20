@@ -1,11 +1,12 @@
-import streamlit as st
-import pandas as pd
-import matplotlib.pyplot as plt
-from scrape import symbolCrypto
-import numpy as np
 import io as io
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import streamlit as st
 from cryptocmd import CmcScraper
 from keras.models import load_model
+from scrape import symbolCrypto
 from sklearn.preprocessing import MinMaxScaler
 
 st.title("Prediksi Performa Cryptocurrencies")
