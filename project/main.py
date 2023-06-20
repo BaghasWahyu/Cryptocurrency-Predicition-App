@@ -173,7 +173,7 @@ if len(dropdown) > 0:
         """Prints the bias and weights of a Keras model."""
         st.write("**Bias and weights**")
         for layer in model.layers:
-            w, b = layer.get_weights()
+            w, *b = model.layers[0].get_weights()
             st.write(f"Layer: {layer.name}")
             st.write(f"Bias: {b}")
             st.write(f"Weights: {w}")
