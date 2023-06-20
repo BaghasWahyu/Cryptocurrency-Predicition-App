@@ -313,46 +313,18 @@ if len(dropdown) > 0:
             mime='application/vnd.ms-excel',
         )
 
-    # fig, ax = plt.subplots(figsize=(20, 10))
-    # ax.plot(new_pred_data.loc['2022-01-01':,
-    #         option3], label=f'Harga {option3_str} Terkini')
-    # ax.plot(upcoming_prediction.loc['2023-01-01':,
-    #         option3], label=f'Harga {option3_str} yang akan datang')
-    # ax.plot(latest_price.loc['2023-01-01':, option3],
-    #         label=f'Harga {option3_str} terbaru')
-    # plt.setp(ax.xaxis.get_majorticklabels(), rotation=45)
-    # ax.set_xlabel('Tanggal', size=15)
-    # ax.set_ylabel(f'{dropdown} Price', size=15)
-    # ax.set_title(
-    #     f'Peramalan harga {dropdown} {option3_str} yang akan datang', size=15)
-    # ax.legend()
+    fig, ax = plt.subplots(figsize=(20, 10))
+    ax.plot(new_pred_data.loc['2022-01-01':,
+            option3], label=f'Harga {option3_str} Terkini')
+    ax.plot(upcoming_prediction.loc['2023-01-01':,
+            option3], label=f'Harga {option3_str} yang akan datang')
+    ax.plot(latest_price.loc['2023-01-01':, option3],
+            label=f'Harga {option3_str} terbaru')
+    plt.setp(ax.xaxis.get_majorticklabels(), rotation=45)
+    ax.set_xlabel('Tanggal', size=15)
+    ax.set_ylabel(f'{dropdown} Price', size=15)
+    ax.set_title(
+        f'Peramalan harga {dropdown} {option3_str} yang akan datang', size=15)
+    ax.legend()
 
-    # st.pyplot(fig)
-    # Membuat dataframe dummy untuk contoh
-
-    import altair as alt
-
-    data_chart_altair = pd.DataFrame({
-        'Tanggal': pd.date_range('2022-01-01', '2023-12-31', freq='D'),
-        'Harga Terkini': new_pred_data.loc['2022-01-01':, option3],
-        'Harga yang Akan Datang': upcoming_prediction.loc['2023-01-01':, option3],
-        'Harga Terbaru': latest_price.loc['2023-01-01':, option3]
-    })
-
-    # Membuat Vega chart menggunakan Altair
-    chart = alt.Chart(data_chart_altair).mark_line().encode(
-        x='Tanggal:T',
-        y=alt.Y(f'{dropdown} Price:Q', title=f'{dropdown} Price'),
-        color=alt.Color(
-            'category:N',
-            scale=alt.Scale(scheme='category20'),
-            legend=alt.Legend(title='Kategori')
-        )
-    ).properties(
-        width=800,
-        height=400,
-        title=f'Peramalan harga {dropdown} {option3_str} yang akan datang'
-    )
-
-    # Menampilkan chart menggunakan Streamlit
-    st.altair_chart(chart)
+    st.pyplot(fig)
