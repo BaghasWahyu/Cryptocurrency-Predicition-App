@@ -200,8 +200,7 @@ if len(dropdown) > 0:
         data = new_data[option2]
         custom_chart = alt.Chart(data).mark_line().encode(
             x='Date',
-            y=option2,
-            color='Origin'
+            y=option2
         )
         st.altair_chart(custom_chart)
         st.line_chart(data, y=option2)
