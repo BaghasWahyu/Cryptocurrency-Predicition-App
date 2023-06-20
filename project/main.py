@@ -8,8 +8,6 @@ from cryptocmd import CmcScraper
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 
-import altair as alt
-
 st.title("Prediksi Performa Cryptocurrencies")
 
 st.markdown(
@@ -198,8 +196,6 @@ if len(dropdown) > 0:
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart", cols2, default=["Open", "open_predicted"], key="chart_predict")
     if option2:
         data = new_data[option2]
-        custom_chart = alt.Chart(data).mark_line()
-        st.altair_chart(custom_chart)
         st.line_chart(data, y=option2)
     else:
         st.warning('Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!')
