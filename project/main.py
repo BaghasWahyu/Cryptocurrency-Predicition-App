@@ -160,15 +160,25 @@ if len(dropdown) > 0:
     loaded_model = load_trained_model(
         f'./model/{dropdown}_model')
 
-    weights = loaded_model.get_weights()
+    # weights = loaded_model.get_weights()
 
-    st.write("Jumlah layer:", len(loaded_model.layers))
-    for i, layer in enumerate(loaded_model.layers):
-        st.write("Layer:", i)
-        st.write("Bias:")
-        st.write(weights[2*i])
-        st.write("Weights:")
-        st.write(weights[2*i+1])
+    # st.write("Jumlah layer:", len(loaded_model.layers))
+    # for i, layer in enumerate(loaded_model.layers):
+    #     st.write("Layer:", i)
+    #     st.write("Bias:")
+    #     st.write(weights[2*i])
+    #     st.write("Weights:")
+    #     st.write(weights[2*i+1])
+    def show_bias_and_weight(model):
+        """Prints the bias and weights of a Keras model."""
+        st.write("**Bias and weights**")
+        for layer in model.layers:
+            w, b = layer.get_weights()
+            st.write(f"Layer: {layer.name}")
+            st.write(f"Bias: {b}")
+            st.write(f"Weights: {w}")
+
+    show_bias_and_weight(loaded_model)
 
     test_predicted = loaded_model.predict(test_seq)
     test_inverse_predicted = MMS.inverse_transform(test_predicted)
