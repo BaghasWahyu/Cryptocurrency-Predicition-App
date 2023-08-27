@@ -70,18 +70,27 @@ def get_symbol():
     df["Price"] = crypto_price_list
     df["Circulating Supply"] = crypto_circulating_supply_list
     df["Symbol"] = crypro_symbol_list
-
     list_crypto = df[:5]
-
     nama_crypto = list_crypto["Name"]
     symbol_crypto = list_crypto["Symbol"]
-    return nama_crypto, symbol_crypto
+
+    return list_crypto, nama_crypto, symbol_crypto
 
 
-nama_crypto, symbol_crypto = get_symbol()
+list_crypto, nama_crypto, symbol_crypto = get_symbol()
 
 symbolCrypto = []
+namaCrypto = []
 
-for i in symbol_crypto:
-    j = i.replace(" ", "-")
-    symbolCrypto.append(j)
+for item_symbol in symbol_crypto:
+    symbolCrypto.append(item_symbol)
+
+for item_nama in nama_crypto:
+    namaCrypto.append(item_nama)
+
+if __name__ == "__main__":
+    print(list_crypto)
+    print(nama_crypto)
+    print(symbol_crypto)
+    print(symbolCrypto)
+    print(namaCrypto)

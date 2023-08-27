@@ -6,8 +6,9 @@ import pandas as pd
 import streamlit as st
 from cryptocmd import CmcScraper
 from keras.models import load_model
-from scrape import symbolCrypto
 from sklearn.preprocessing import MinMaxScaler
+
+from scrape import symbolCrypto, list_crypto, namaCrypto
 
 st.title("Prediksi Performa Cryptocurrencies")
 
@@ -44,10 +45,10 @@ def load_trained_model(path_to_model):
 
 
 with st.sidebar:
-    dropdown = st.selectbox(
-        "Pilih Salah Satu Cryptocurrency", symbolCrypto, key="input_crypto"
+    dropdown_index = st.selectbox(
+        "Pilih Salah Satu Cryptocurrency", namaCrypto, key="input_crypto"
     )
-
+    dropdown = symbolCrypto[namaCrypto.index(dropdown_index)]
     if dropdown:
         start_predict = st.date_input(
             "Tanggal Awal Prediksi",
@@ -61,6 +62,11 @@ with st.sidebar:
         )
 
     period = (start_predict - end_predict).days - 1
+
+st.subheader(
+    f"Berikut 5 Cryoptocurrency tertinggi berdasarkan Market Capitalization per 31 Desember 2022"
+)
+st.dataframe(list_crypto)
 
 if len(dropdown) > 0:
     st.subheader(f"Berikut data historis {dropdown} 2019-2022")
