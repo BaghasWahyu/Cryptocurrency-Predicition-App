@@ -12,8 +12,6 @@ from scrape import symbolCrypto, list_crypto, namaCrypto
 
 st.title("Prediksi Performa Cryptocurrencies")
 
-st.markdown("5 Cryptocurrency berdasarkan kapitalisasi pasar tertinggi")
-
 MMS = MinMaxScaler(feature_range=(0, 1))
 
 if "input_crypto" not in st.session_state:
@@ -64,7 +62,7 @@ with st.sidebar:
     period = (start_predict - end_predict).days - 1
 
 st.subheader(
-    f"Berikut 5 Cryoptocurrency tertinggi berdasarkan Market Capitalization per 31 Desember 2022"
+    "Berikut 5 Cryoptocurrency tertinggi berdasarkan Market Capitalization per 31 Desember 2022"
 )
 st.dataframe(list_crypto)
 
