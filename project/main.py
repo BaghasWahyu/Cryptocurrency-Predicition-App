@@ -15,7 +15,7 @@ st.title("Prediksi Performa Cryptocurrencies")
 MMS = MinMaxScaler(feature_range=(0, 1))
 
 if "input_crypto" not in st.session_state:
-    st.session_state["input_crypto"] = "BTC"
+    st.session_state["input_crypto"] = "Bitcoin"
 
 if "input_start" not in st.session_state:
     st.session_state["input_start"] = pd.to_datetime("2023-01-01")
