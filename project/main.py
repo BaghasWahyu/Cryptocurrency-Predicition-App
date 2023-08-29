@@ -326,7 +326,6 @@ if len(dropdown) > 0:
     )
     option3_str = str(option3)
     option3_latest = f"{option3}_Latest"
-    option3_future = f"{option3}_Future"
     data_prediction = upcoming_prediction[option3]
     data_prediction = data_prediction[start_predict:]
     data_combined = pd.concat(
@@ -337,7 +336,7 @@ if len(dropdown) > 0:
         axis=1,
     )
 
-    st.subheader(f"Berikut harga {dropdown} {option3_str} yang akan datang")
+    st.subheader(f"Berikut harga {dropdown_index} {option3_str} yang akan datang")
     st.dataframe(data_combined, use_container_width=True)
 
     download_btn_all, download_btn_pred, download_btn_latest = st.columns(3)
