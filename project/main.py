@@ -67,7 +67,7 @@ st.subheader(
 st.dataframe(list_crypto, use_container_width=True)
 
 if len(dropdown) > 0:
-    st.subheader(f"Berikut data historis {dropdown} 2019-2022")
+    st.subheader(f"Berikut data historis {dropdown_index} 2019-2022")
     data_historis = pd.read_excel(
         f"./data_historis/{dropdown}_data_historis.xlsx", index_col=0, parse_dates=True
     )
@@ -224,7 +224,7 @@ if len(dropdown) > 0:
     )
 
     cols2 = new_data.columns.tolist()
-    st.subheader(f"Berikut data {dropdown} Terkini dan yang Teprediksi")
+    st.subheader(f"Berikut data {dropdown_index} Terkini dan yang Teprediksi")
     st.dataframe(new_data, use_container_width=True)
     option2 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart",
@@ -347,7 +347,7 @@ if len(dropdown) > 0:
         all_data_combined.to_excel(writer)
     with download_btn_all:
         st.download_button(
-            label=f"Download {dropdown} All Data",
+            label=f"Download {dropdown_index} All Data",
             data=all_data_excel,
             file_name=f"{dropdown}_all.xlsx",
             mime="application/vnd.ms-excel",
@@ -358,7 +358,7 @@ if len(dropdown) > 0:
         upcoming_prediction[start_predict:].to_excel(writer)
     with download_btn_pred:
         st.download_button(
-            label=f"Download {dropdown} Prediction Data",
+            label=f"Download {dropdown_index} Prediction Data",
             data=pred_data_excel,
             file_name=f"{dropdown}_prediction.xlsx",
             mime="application/vnd.ms-excel",
@@ -371,7 +371,7 @@ if len(dropdown) > 0:
         diff_col_name_latest_price.to_excel(writer)
     with download_btn_latest:
         st.download_button(
-            label=f"Download {dropdown} Latest Data",
+            label=f"Download {dropdown_index} Latest Data",
             data=diff_col_name_latest_price_excel,
             file_name=f"{dropdown}_latest.xlsx",
             mime="application/vnd.ms-excel",
@@ -390,8 +390,10 @@ if len(dropdown) > 0:
     )
     plt.setp(ax.xaxis.get_majorticklabels(), rotation=45)
     ax.set_xlabel("Tanggal", size=15)
-    ax.set_ylabel(f"{dropdown} Price", size=15)
-    ax.set_title(f"Peramalan harga {dropdown} {option3_str} yang akan datang", size=15)
+    ax.set_ylabel(f"{dropdown_index} Price", size=15)
+    ax.set_title(
+        f"Peramalan harga {dropdown_index} {option3_str} yang akan datang", size=15
+    )
     ax.legend()
 
     st.pyplot(fig)
