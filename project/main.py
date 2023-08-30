@@ -4,9 +4,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import streamlit as st
+import math
 from cryptocmd import CmcScraper
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+
 
 from scrape import symbolCrypto, list_crypto, namaCrypto
 
@@ -197,9 +200,14 @@ if len(dropdown) > 0:
     test_inverse_predicted = MMS.inverse_transform(test_predicted)
     test_inverse = MMS.inverse_transform(test_label)
 
-    RMSE = np.sqrt(np.mean(((test_inverse_predicted - test_inverse) ** 2)))
+    MAE = mean_absolute_error(test_inverse, test_inverse_predicted)
+    MSE = mean_squared_error(test_inverse, test_inverse_predicted)
+    # RMSE = np.sqrt(np.mean(((test_inverse_predicted - test_inverse) ** 2)))
+    RMSE = math.sqrt(MSE)
 
-    st.markdown(f"Skor RMSE yang dihasilkan adalah {RMSE}")
+    st.markdown(
+        f"Skor untuk model {dropdown_index} dengan epoch dihasilkan adalah RMSE: {RMSE}"
+    )
 
     test_inverse_predicted_shape_negative = -test_inverse_predicted.shape[0]
 
