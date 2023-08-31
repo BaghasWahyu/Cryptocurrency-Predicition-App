@@ -212,7 +212,7 @@ if len(dropdown) > 0:
     )
 
     st.markdown(
-        f"Skor untuk model {dropdown_index} dengan epoch dihasilkan adalah RMSE: {RMSE}, MAPE: {MAPE}"
+        f"Skor untuk model {dropdown_index} dengan epoch dihasilkan adalah RMSE: {RMSE}, MAPE:  {np.round(MAPE, 2)} %"
     )
 
     test_inverse_predicted_shape_negative = -test_inverse_predicted.shape[0]
