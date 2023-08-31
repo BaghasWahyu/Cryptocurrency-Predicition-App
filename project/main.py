@@ -204,10 +204,15 @@ if len(dropdown) > 0:
     MSE = mean_squared_error(test_inverse, test_inverse_predicted)
     # RMSE = np.sqrt(np.mean(((test_inverse_predicted - test_inverse) ** 2)))
     RMSE = math.sqrt(MSE)
+    MAPE = (
+        np.mean(
+            (np.abs(np.subtract(test_inverse, test_inverse_predicted) / test_inverse))
+        )
+        * 100
+    )
 
     st.markdown(
-        f"""Skor untuk model {dropdown_index} dengan epoch dihasilkan adalah 
-        RMSE: {RMSE}"""
+        f"Skor untuk model {dropdown_index} dengan epoch dihasilkan adalah RMSE: {RMSE}, MAPE: {MAPE}"
     )
 
     test_inverse_predicted_shape_negative = -test_inverse_predicted.shape[0]
