@@ -200,9 +200,11 @@ if len(dropdown) > 0:
     test_predicted = loaded_model.predict(test_seq)
     test_inverse_predicted = MMS.inverse_transform(test_predicted)
     test_inverse = MMS.inverse_transform(test_label)
+
     st.write(f"Test sequence shape {test_seq.shape}")
     st.write(f"Test label shape {test_label.shape}")
     st.write(f"Test predicted shape {test_predicted.shape}")
+
     MAE = mean_absolute_error(test_label, test_predicted)
     MSE = mean_squared_error(test_label, test_predicted)
     # RMSE = np.sqrt(np.mean(((test_inverse_predicted - test_inverse) ** 2)))
@@ -210,7 +212,7 @@ if len(dropdown) > 0:
     MAPE = np.mean((np.abs(np.subtract(test_label, test_predicted) / test_label))) * 100
 
     st.markdown(
-        f"Skor untuk model {dropdown_index} dengan epoch dihasilkan adalah RMSE: {np.round(RMSE, 2)}, MAPE:  {np.round(MAPE, 2)} %"
+        f"Skor untuk model {dropdown_index} dengan epoch dihasilkan adalah RMSE: {np.round(RMSE, 4)}, MAPE:  {np.round(MAPE, 2)} %"
     )
 
     test_inverse_predicted_shape_negative = -test_inverse_predicted.shape[0]
