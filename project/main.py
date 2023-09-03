@@ -205,23 +205,28 @@ if len(dropdown) > 0:
     st.write(f"Test label shape {test_label.shape}")
     st.write(f"Test predicted shape {test_predicted.shape}")
 
-    MAE = mean_absolute_error(test_label, test_predicted)
-    MSE = mean_squared_error(test_label, test_predicted)
+    MAE = mean_absolute_error(test_inverse, test_inverse_predicted)
+    MSE = mean_squared_error(test_inverse, test_inverse_predicted)
     # RMSE = np.sqrt(np.mean(((test_inverse_predicted - test_inverse) ** 2)))
     RMSE = math.sqrt(MSE)
-    MAPE = np.mean((np.abs(np.subtract(test_label, test_predicted) / test_label))) * 100
+    MAPE = (
+        np.mean(
+            (np.abs(np.subtract(test_inverse, test_inverse_predicted) / test_inverse))
+        )
+        * 100
+    )
     epsilon = 1e-4
-    error = np.abs(test_label - test_predicted) / (test_label + epsilon)
+    error = np.abs(test_inverse - test_inverse_predicted) / (test_inverse + epsilon)
     mape_usd = np.mean(error)
 
-    if dropdown_index == "Tether" or dropdown_index == "USD Coin":
-        st.markdown(
-            f"Skor untuk model {dropdown_index} dengan epoch dihasilkan adalah RMSE: {np.round(RMSE, 4)}, MAPE:  {np.round(mape_usd, 2)} %"
-        )
-    else:
-        st.markdown(
-            f"Skor untuk model {dropdown_index} dengan epoch dihasilkan adalah RMSE: {np.round(RMSE, 4)}, MAPE:  {np.round(MAPE, 2)} %"
-        )
+    # if dropdown_index == "Tether" or dropdown_index == "USD Coin":
+    #     st.markdown(
+    #         f"Skor untuk model {dropdown_index} dengan epoch dihasilkan adalah RMSE: {np.round(RMSE, 4)}, MAPE:  {np.round(mape_usd, 2)} %"
+    #     )
+    # else:
+    st.markdown(
+        f"Skor untuk model {dropdown_index} dengan epoch dihasilkan adalah RMSE: {np.round(RMSE, 4)}, MAPE:  {np.round(MAPE, 2)} %"
+    )
 
     test_inverse_predicted_shape_negative = -test_inverse_predicted.shape[0]
 
