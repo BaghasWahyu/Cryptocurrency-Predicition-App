@@ -67,7 +67,11 @@ with st.sidebar:
 st.subheader(
     "Berikut 5 Cryoptocurrency tertinggi berdasarkan Market Capitalization per 31 Desember 2022"
 )
-st.dataframe(list_crypto, use_container_width=True, hide_index=True)
+st.dataframe(
+    list_crypto,
+    use_container_width=True,
+    hide_index=True,
+)
 
 if len(dropdown) > 0:
     st.subheader(f"Berikut data historis {dropdown_index} 2019-2022")
