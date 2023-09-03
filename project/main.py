@@ -70,7 +70,6 @@ st.subheader(
 st.dataframe(
     list_crypto,
     use_container_width=True,
-    hide_index=True,
 )
 
 if len(dropdown) > 0:
