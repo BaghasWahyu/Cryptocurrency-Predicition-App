@@ -210,7 +210,7 @@ if len(dropdown) > 0:
     # RMSE = np.sqrt(np.mean(((test_inverse_predicted - test_inverse) ** 2)))
     RMSE = math.sqrt(MSE)
     MAPE = np.mean((np.abs(np.subtract(test_label, test_predicted) / test_label))) * 100
-    epsilon = 1e-5
+    epsilon = 1e-3
     error = np.abs(test_label - test_predicted) / (test_label + epsilon)
     mape_usd = np.mean(error)
 
