@@ -200,7 +200,7 @@ if len(dropdown) > 0:
     test_predicted = loaded_model.predict(test_seq)
     test_inverse_predicted = MMS.inverse_transform(test_predicted)
     test_inverse = MMS.inverse_transform(test_label)
-
+    st.write(f"Test yang terpediksi adalah {test_predicted}")
     MAE = mean_absolute_error(test_data, test_predicted)
     MSE = mean_squared_error(test_data, test_predicted)
     # RMSE = np.sqrt(np.mean(((test_inverse_predicted - test_inverse) ** 2)))
