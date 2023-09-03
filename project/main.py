@@ -252,7 +252,7 @@ if len(dropdown) > 0:
 
     cols2 = new_data.columns.tolist()
     st.subheader(f"Berikut data {dropdown_index} Terkini dan yang Teprediksi")
-    st.dataframe(new_data, use_container_width=True)
+    st.dataframe(new_data, use_container_width=True, hide_index=True)
     option2 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart",
         cols2,
