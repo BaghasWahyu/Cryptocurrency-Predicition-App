@@ -148,6 +148,7 @@ if len(dropdown) > 0:
             pd.DataFrame(test_data),
         )
 
+    @st.cache_data
     def create_sequence(dataset):
         sequences = []
         labels = []
