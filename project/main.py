@@ -295,7 +295,7 @@ if len(dropdown) > 0:
 
     current_seq = test_seq[-1:]
 
-    for i in range(period, 0, -1):
+    for i in range(period, 0):
         up_pred = loaded_model.predict(current_seq)
         upcoming_prediction.iloc[i] = up_pred
         current_seq = np.append(current_seq[0][1:], up_pred, axis=0)
