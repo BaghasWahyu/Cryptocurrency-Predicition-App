@@ -200,8 +200,8 @@ if len(dropdown) > 0:
     test_inverse_predicted = MMS.inverse_transform(test_predicted)
     test_inverse = MMS.inverse_transform(test_label)
 
-    MAE = mean_absolute_error(test_inverse, test_inverse_predicted)
-    MSE = mean_squared_error(test_inverse, test_inverse_predicted)
+    MAE = mean_absolute_error(test_seq, test_predicted)
+    MSE = mean_squared_error(test_seq, test_predicted)
     # RMSE = np.sqrt(np.mean(((test_inverse_predicted - test_inverse) ** 2)))
     RMSE = math.sqrt(MSE)
     MAPE = (
