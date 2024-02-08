@@ -1,5 +1,4 @@
 beautifulsoup4==4.12.3
-keras==2.15.0
 matplotlib==3.8.2
 numpy==1.26.4
 pandas==2.2.0
