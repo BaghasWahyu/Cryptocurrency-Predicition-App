@@ -53,8 +53,8 @@ with st.sidebar:
     if dropdown:
         start_predict = st.date_input(
             "Tanggal Awal Prediksi",
-            value=pd.to_datetime("2023-01-01"),
-            min_value=pd.to_datetime("2023-01-01"),
+            value=pd.to_datetime("2024-01-01"),
+            min_value=pd.to_datetime("2024-01-01"),
             key="input_start",
         )
 
@@ -65,7 +65,7 @@ with st.sidebar:
     periode = (start_predict - end_predict).days - 1
 
 st.subheader(
-    "Berikut 5 Cryoptocurrency tertinggi berdasarkan Market Capitalization per 31 Desember 2022"
+    "Berikut 5 Cryoptocurrency tertinggi berdasarkan Market Capitalization per 31 Desember 2023"
 )
 st.dataframe(
     list_crypto,
