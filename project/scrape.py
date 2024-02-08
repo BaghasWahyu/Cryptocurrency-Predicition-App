@@ -22,7 +22,7 @@ def scrape(date):
     tr = soup.find_all("tr", attrs={"class": "cmc-table-row"})
     count = 0
     for row in tr:
-        if count == 10:
+        if count == 5:
             break
         count = count + 1
         name_column = row.find(
@@ -64,7 +64,7 @@ def scrape(date):
 
 @st.cache_data
 def get_symbol():
-    scrape(date="20221231/")
+    scrape(date="20231231/")
     df["Name"] = crypto_name_list
     df["Market Capitalization"] = crypto_market_cap_list
     df["Price"] = crypto_price_list
@@ -88,9 +88,9 @@ for item_symbol in symbol_crypto:
 for item_nama in nama_crypto:
     namaCrypto.append(item_nama)
 
-if __name__ == "__main__":
-    print(list_crypto)
-    print(nama_crypto)
-    print(symbol_crypto)
-    print(symbolCrypto)
-    print(namaCrypto)
+# if __name__ == "__main__":
+#     print(list_crypto)
+#     print(nama_crypto)
+#     print(symbol_crypto)
+#     print(symbolCrypto)
+#     print(namaCrypto)
