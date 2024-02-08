@@ -4,19 +4,18 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-beautifulsoup4 = "*"
-keras = "*"
-matplotlib = "*"
-numpy = "*""
-pandas = "*"
-requests = "*"
-scikit-learn = "*"
-streamlit = "*"
-tensorflow = "*"
-openpyxl = "*"
-cryptocmd = "*"
-xlsxwriter = "*"
-pipreqs = "*"
+beautifulsoup4 = "==4.12.3"
+keras = "==2.15.0"
+matplotlib = "==3.8.2"
+numpy = "==1.26.4"
+pandas = "==2.2.0"
+requests = "==2.31.0"
+scikit-learn = "==1.4.0"
+streamlit = "==1.31.0"
+tensorflow = "==2.15.0"
+openpyxl = "==3.1.2"
+cryptocmd = "==0.6.4"
+xlsxwriter = "==3.1.9"
 
 [dev-packages]
 
