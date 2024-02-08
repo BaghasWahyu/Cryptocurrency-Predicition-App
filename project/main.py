@@ -73,7 +73,7 @@ st.dataframe(
 )
 
 if len(dropdown) > 0:
-    st.subheader(f"Berikut data historis {dropdown_index} 2019-2022")
+    st.subheader(f"Berikut data historis {dropdown_index}")
     data_historis = pd.read_excel(
         f"./data_historis/{dropdown}_data_historis.xlsx", index_col=0, parse_dates=True
     )
