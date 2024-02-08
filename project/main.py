@@ -21,7 +21,7 @@ if "input_crypto" not in st.session_state:
     st.session_state["input_crypto"] = "Bitcoin"
 
 if "input_start" not in st.session_state:
-    st.session_state["input_start"] = pd.to_datetime("2023-01-01")
+    st.session_state["input_start"] = pd.to_datetime("2024-01-01")
 
 if "input_end" not in st.session_state:
     st.session_state["input_end"] = pd.to_datetime("today")
@@ -62,7 +62,7 @@ with st.sidebar:
             "Tanggal Akhir Prediksi", value=pd.to_datetime("today"), key="input_end"
         )
 
-    period = (start_predict - end_predict).days - 1
+    periode = (start_predict - end_predict).days - 1
 
 st.subheader(
     "Berikut 5 Cryoptocurrency tertinggi berdasarkan Market Capitalization per 31 Desember 2022"
@@ -295,7 +295,7 @@ if len(dropdown) > 0:
 
     current_seq = test_seq[-1:]
 
-    for i in range(period, 0):
+    for i in range(periode, 0):
         up_pred = loaded_model.predict(current_seq)
         upcoming_prediction.iloc[i] = up_pred
         current_seq = np.append(current_seq[0][1:], up_pred, axis=0)
@@ -408,14 +408,14 @@ if len(dropdown) > 0:
 
     fig, ax = plt.subplots(figsize=(20, 10))
     ax.plot(
-        new_pred_data.loc["2022-01-01":, option3], label=f"Harga {option3_str} Terkini"
+        new_pred_data.loc["2023-01-01":, option3], label=f"Harga {option3_str} Terkini"
     )
     ax.plot(
-        upcoming_prediction.loc["2023-01-01":, option3],
+        upcoming_prediction.loc["2024-01-01":, option3],
         label=f"Harga {option3_str} yang akan datang",
     )
     ax.plot(
-        latest_price.loc["2023-01-01":, option3], label=f"Harga {option3_str} terbaru"
+        latest_price.loc["2024-01-01":, option3], label=f"Harga {option3_str} terbaru"
     )
     plt.setp(ax.xaxis.get_majorticklabels(), rotation=45)
     ax.set_xlabel("Tanggal", size=15)
