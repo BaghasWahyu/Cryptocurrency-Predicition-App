@@ -210,7 +210,6 @@ if len(dropdown) > 0:
 
     MAE = mean_absolute_error(test_inverse, test_inverse_predicted)
     MSE = mean_squared_error(test_inverse, test_inverse_predicted)
-    # RMSE = np.sqrt(np.mean(((test_inverse_predicted - test_inverse) ** 2)))
     RMSE = math.sqrt(MSE)
     MAPE = (
         np.mean(
@@ -221,15 +220,6 @@ if len(dropdown) > 0:
     epsilon = 1e-4
     error = np.abs(test_inverse - test_inverse_predicted) / (test_inverse + epsilon)
     mape_usd = np.mean(error)
-
-    # if dropdown_index == "Tether" or dropdown_index == "USD Coin":
-    #     st.markdown(
-    #         f"Skor untuk model {dropdown_index} dengan epoch dihasilkan adalah RMSE: {np.round(RMSE, 4)}, MAPE:  {np.round(mape_usd, 2)} %"
-    #     )
-    # else:
-    # st.markdown(
-    #     f"Skor untuk model {dropdown_index} dengan epoch dihasilkan adalah RMSE: {np.round(RMSE, 4)}, MAPE:  {np.round(MAPE, 2)} %"
-    # )
 
     test_inverse_predicted_shape_negative = -test_inverse_predicted.shape[0]
 
