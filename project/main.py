@@ -158,7 +158,7 @@ if len(dropdown) > 0:
 
         start_idx = 0
 
-        for stop_idx in range(10, len(dataset)):
+        for stop_idx in range(5, len(dataset)):
             sequences.append(dataset.iloc[start_idx:stop_idx])
             labels.append(dataset.iloc[stop_idx])
             start_idx += 1
@@ -227,9 +227,9 @@ if len(dropdown) > 0:
     #         f"Skor untuk model {dropdown_index} dengan epoch dihasilkan adalah RMSE: {np.round(RMSE, 4)}, MAPE:  {np.round(mape_usd, 2)} %"
     #     )
     # else:
-    st.markdown(
-        f"Skor untuk model {dropdown_index} dengan epoch dihasilkan adalah RMSE: {np.round(RMSE, 4)}, MAPE:  {np.round(MAPE, 2)} %"
-    )
+    # st.markdown(
+    #     f"Skor untuk model {dropdown_index} dengan epoch dihasilkan adalah RMSE: {np.round(RMSE, 4)}, MAPE:  {np.round(MAPE, 2)} %"
+    # )
 
     test_inverse_predicted_shape_negative = -test_inverse_predicted.shape[0]
 
