@@ -1,7 +1,7 @@
 tensorflow
-streamlit
-beautifulsoup4
-pandas
-openpyxl
-cryptocmd
-xlsxwriter
+# streamlit
+# beautifulsoup4
+# pandas
+# openpyxl
+# cryptocmd
+# xlsxwriter
