@@ -1,4 +1,5 @@
 tensorflow
+matplotlib
 streamlit
 beautifulsoup4
 pandas
