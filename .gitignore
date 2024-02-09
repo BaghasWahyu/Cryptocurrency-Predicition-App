@@ -2,4 +2,4 @@ Pipfile.lock
 .vscode/*
 .devcontainer/*
 Pipfile
-requirements copy.txt
+requirements - copy.txt
