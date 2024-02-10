@@ -132,6 +132,8 @@ if len(dropdown) > 0:
     crypto_data.set_index("Date", drop=True, inplace=True)
     crypto_data[crypto_data.columns] = MMS.fit_transform(crypto_data)
 
+    st.dataframe[crypto_data]
+
     training_size = round(len(crypto_data) * 0.90)
     train_data = crypto_data[:training_size]
     test_data = crypto_data[training_size:]
