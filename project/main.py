@@ -133,7 +133,7 @@ if len(dropdown) > 0:
     crypto_data[crypto_data.columns] = MMS.fit_transform(crypto_data)
 
     st.write("Data Historis setelah dilakukan proses Min-Max Scaling")
-    st.dataframe(crypto_data)
+    st.dataframe(crypto_data, use_container_width=True)
 
     training_size = round(len(crypto_data) * 0.90)
     train_data = crypto_data[:training_size]
