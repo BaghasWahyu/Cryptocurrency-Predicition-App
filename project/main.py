@@ -144,14 +144,14 @@ if len(dropdown) > 0:
         st.markdown(f"Jumlah Data Latih adalah: {len(train_data)}")
         st.write(
             f"Berikut Data Latih yang sudah dilakukan proses Min Max Scaling",
-            pd.DataFrame(train_data),
+            pd.DataFrame(train_data), use_container_width = True
         )
 
     with total_test_data:
         st.markdown(f"Jumlah Data Uji adalah: {len(test_data)}")
         st.write(
             f"Berikut Data Uji yang sudah dilakukan proses Min Max Scaling",
-            pd.DataFrame(test_data),
+            pd.DataFrame(test_data), use_container_width = True
         )
 
     @st.cache_data
