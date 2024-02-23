@@ -13,7 +13,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 from scrape import symbolCrypto, list_crypto, namaCrypto
 
-st.title("Prediksi Performa Cryptocurrencies")
+st.title("Aplikasi Prediksi Harga Cryptocurrencies")
 
 MMS = MinMaxScaler(feature_range=(0, 1))
 
