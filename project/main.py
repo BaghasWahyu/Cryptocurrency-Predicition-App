@@ -6,7 +6,8 @@ import pandas as pd
 import streamlit as st
 import math
 from cryptocmd import CmcScraper
-from keras.models import load_model
+import tensorflow as tf
+# from tf.keras.saving import load_model
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
@@ -41,7 +42,7 @@ if "chart_next_predict" not in st.session_state:
 
 @st.cache_resource
 def load_trained_model(path_to_model):
-    model = load_model(path_to_model)
+    model = tf.keras.saving.load_model(path_to_model)
     return model
 
 
@@ -189,7 +190,7 @@ if len(dropdown) > 0:
             st.write("Test Label", test_label.shape)
             st.write(test_label)
 
-    loaded_model = load_trained_model(f"./model/{dropdown}_model.keras")
+    loaded_model = load_trained_model(f"./model/{dropdown}_model")
     with st.expander("Ringkasan Model"):
         loaded_model.summary(print_fn=st.write)
         for layer in loaded_model.layers:
