@@ -42,7 +42,7 @@ if "chart_next_predict" not in st.session_state:
 
 @st.cache_resource
 def load_trained_model(path_to_model):
-    model = tf.keras.saving.load_model(path_to_model)
+    model = tf.keras.models.load_model(path_to_model)
     return model
 
 
@@ -190,7 +190,7 @@ if len(dropdown) > 0:
             st.write("Test Label", test_label.shape)
             st.write(test_label)
 
-    loaded_model = load_trained_model(f"./model/{dropdown}_model")
+    loaded_model = load_trained_model(f"./model/{dropdown}_model.keras")
     with st.expander("Ringkasan Model"):
         loaded_model.summary(print_fn=st.write)
         for layer in loaded_model.layers:
