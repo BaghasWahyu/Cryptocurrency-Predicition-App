@@ -189,7 +189,7 @@ if len(dropdown) > 0:
             st.write("Test Label", test_label.shape)
             st.write(test_label)
 
-    loaded_model = load_trained_model(f"./model/{dropdown}_model")
+    loaded_model = load_trained_model(f"./model/{dropdown}_model.keras")
     with st.expander("Ringkasan Model"):
         loaded_model.summary(print_fn=st.write)
         for layer in loaded_model.layers:
