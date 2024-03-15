@@ -7,7 +7,7 @@ import streamlit as st
 import math
 from cryptocmd import CmcScraper
 import tensorflow as tf
-from tensorflow.keras.models import load_model
+from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
