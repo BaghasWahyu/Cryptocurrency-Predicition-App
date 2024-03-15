@@ -1,7 +1,6 @@
 tensorflow
 matplotlib
 scikit-learn
-keras
 streamlit
 beautifulsoup4
 pandas
