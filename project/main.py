@@ -6,7 +6,6 @@ import pandas as pd
 import streamlit as st
 import math
 from cryptocmd import CmcScraper
-import tensorflow as tf
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_error, mean_squared_error
@@ -187,7 +186,7 @@ if len(dropdown) > 0:
             st.write("Test Label", test_label.shape)
             st.write(test_label)
 
-    loaded_model = load_trained_model(f"./model/{dropdown}_model.keras")
+    loaded_model = load_trained_model(f"./model/{dropdown}_model")
     with st.expander("Ringkasan Model"):
         loaded_model.summary(print_fn=st.write)
         for layer in loaded_model.layers:
@@ -212,6 +211,8 @@ if len(dropdown) > 0:
     MAE = mean_absolute_error(test_inverse, test_inverse_predicted)
     MSE = mean_squared_error(test_inverse, test_inverse_predicted)
     RMSE = math.sqrt(MSE)
+    RMSE_percentage = (RMSE / np.mean(test_inverse)) * 100
+    st.write(f"RMSE {dropdown} : {RMSE} atau {RMSE_percentage:.2f}%")
     MAPE = (
         np.mean(
             (np.abs(np.subtract(test_inverse, test_inverse_predicted) / test_inverse))
