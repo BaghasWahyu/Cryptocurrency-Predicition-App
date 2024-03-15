@@ -7,7 +7,7 @@ import streamlit as st
 import math
 from cryptocmd import CmcScraper
 import tensorflow as tf
-# from tf.keras.saving import load_model
+from tensorflow.keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
@@ -42,7 +42,7 @@ if "chart_next_predict" not in st.session_state:
 
 @st.cache_resource
 def load_trained_model(path_to_model):
-    model = tf.keras.models.load_model(path_to_model)
+    model = load_model(path_to_model)
     return model
 
 
