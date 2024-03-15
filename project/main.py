@@ -68,10 +68,7 @@ with st.sidebar:
 st.subheader(
     "Berikut 5 Cryoptocurrency tertinggi berdasarkan Market Capitalization per 31 Desember 2023"
 )
-st.dataframe(
-    list_crypto,
-    use_container_width=True,
-)
+st.dataframe(list_crypto, use_container_width=True)
 
 if len(dropdown) > 0:
     st.subheader(f"Berikut data historis {dropdown_index}")
@@ -145,14 +142,14 @@ if len(dropdown) > 0:
         st.markdown(f"Jumlah Data Latih adalah: {len(train_data)}")
         st.write(
             f"Berikut Data Latih yang sudah dilakukan proses Min Max Scaling",
-            pd.DataFrame(train_data), use_container_width = True
+            pd.DataFrame(train_data)
         )
 
     with total_test_data:
         st.markdown(f"Jumlah Data Uji adalah: {len(test_data)}")
         st.write(
             f"Berikut Data Uji yang sudah dilakukan proses Min Max Scaling",
-            pd.DataFrame(test_data), use_container_width = True
+            pd.DataFrame(test_data)
         )
 
     @st.cache_data
