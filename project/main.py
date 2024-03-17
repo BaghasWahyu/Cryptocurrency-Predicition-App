@@ -209,19 +209,16 @@ if len(dropdown) > 0:
     st.write(f"Test predicted shape {test_predicted.shape}")
 
     MAE = mean_absolute_error(test_inverse, test_inverse_predicted)
-    MSE = mean_squared_error(test_inverse, test_inverse_predicted)
-    RMSE = math.sqrt(MSE)
-    RMSE_percentage = (RMSE / np.mean(test_inverse)) * 100
-    st.write(f"RMSE {dropdown} : {RMSE} atau {RMSE_percentage:.2f}%")
+    
     MAPE = (
         np.mean(
             (np.abs(np.subtract(test_inverse, test_inverse_predicted) / test_inverse))
         )
         * 100
     )
-    epsilon = 1e-4
-    error = np.abs(test_inverse - test_inverse_predicted) / (test_inverse + epsilon)
-    mape_usd = np.mean(error)
+    # epsilon = 1e-4
+    # error = np.abs(test_inverse - test_inverse_predicted) / (test_inverse + epsilon)
+    # mape_usd = np.mean(error)
 
     test_inverse_predicted_shape_negative = -test_inverse_predicted.shape[0]
 
@@ -248,6 +245,33 @@ if len(dropdown) > 0:
     cols2 = new_data.columns.tolist()
     st.subheader(f"Berikut data {dropdown_index} Terkini dan yang Teprediksi")
     st.dataframe(new_data, use_container_width=True)
+
+    #RMSE Open
+    MSE_open = mean_squared_error(new_data["Open"], new_data["open_predicted"])
+    RMSE_open = math.sqrt(MSE_open)
+    RMSE_open_percentage = (RMSE_open / np.mean(new_data["Open"])) * 100
+    st.write(f"RMSE Open {dropdown} : {RMSE_open:.3f} atau {RMSE_open_percentage:.3f}%")
+
+    #RMSE High
+    MSE_high = mean_squared_error(new_data["High"], new_data["high_predicted"])
+    RMSE_high = math.sqrt(MSE_high)
+    RMSE_high_percentage = (RMSE_high / np.mean(new_data["High"])) * 100
+    st.write(f"RMSE High {dropdown} : {RMSE_high:.3f} atau {RMSE_high_percentage:.3f}%")
+
+    #RMSE Low
+    MSE_low = mean_squared_error(new_data["Low"], new_data["low_predicted"])
+    RMSE_low = math.sqrt(MSE_low)
+    RMSE_low_percentage = (RMSE_low / np.mean(new_data["Low"])) * 100
+    st.write(f"RMSE Low {dropdown} : {RMSE_low:.3f} atau {RMSE_low_percentage:.3f}%")
+
+    #RMSE Close
+    MSE_close = mean_squared_error(new_data["Close"], new_data["close_predicted"])
+    RMSE_close = math.sqrt(MSE_close)
+    RMSE_close_percentage = (RMSE_close / np.mean(new_data["Close"])) * 100
+    st.write(f"RMSE Close {dropdown} : {RMSE_close:.3f} atau {RMSE_close_percentage:.3f}%")
+
+
+
     option2 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart",
         cols2,
