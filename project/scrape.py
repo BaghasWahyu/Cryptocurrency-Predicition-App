@@ -87,10 +87,3 @@ for item_symbol in symbol_crypto:
 
 for item_nama in nama_crypto:
     namaCrypto.append(item_nama)
-
-# if __name__ == "__main__":
-#     print(list_crypto)
-#     print(nama_crypto)
-#     print(symbol_crypto)
-#     print(symbolCrypto)
-#     print(namaCrypto)
