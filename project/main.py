@@ -1,6 +1,7 @@
 import io as io
 
 import matplotlib.pyplot as plt
+from matplotlib.dates import DateFormatter, AutoDateLocator
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -46,23 +47,25 @@ def load_trained_model(path_to_model):
 
 
 with st.sidebar:
-    dropdown_index = st.selectbox(
-        "Pilih Salah Satu Cryptocurrency", namaCrypto, key="input_crypto"
-    )
-    dropdown = symbolCrypto[namaCrypto.index(dropdown_index)]
-    if dropdown:
-        start_predict = st.date_input(
-            "Tanggal Awal Prediksi",
-            value=pd.to_datetime("2024-01-01"),
-            min_value=pd.to_datetime("2024-01-01"),
-            key="input_start",
+    with st.form("first_form"):
+        dropdown_index = st.selectbox(
+            "Pilih Salah Satu Cryptocurrency", namaCrypto, key="input_crypto"
         )
+        dropdown = symbolCrypto[namaCrypto.index(dropdown_index)]
+        if dropdown:
+            start_predict = st.date_input(
+                "Tanggal Awal Prediksi",
+                value=pd.to_datetime("2024-01-01"),
+                min_value=pd.to_datetime("2024-01-01"),
+                key="input_start",
+            )
 
-        end_predict = st.date_input(
-            "Tanggal Akhir Prediksi", value=pd.to_datetime("today"), key="input_end"
-        )
+            end_predict = st.date_input(
+                "Tanggal Akhir Prediksi", value=pd.to_datetime("today"), key="input_end"
+            )
 
-    periode = (start_predict - end_predict).days - 1
+        periode = (start_predict - end_predict).days - 1
+        st.form_submit_button("Submit")
 
 st.subheader(
     "Berikut 5 Cryoptocurrency tertinggi berdasarkan Market Capitalization per 31 Desember 2023"
@@ -75,6 +78,7 @@ if len(dropdown) > 0:
         f"./data_historis/{dropdown}_data_historis.xlsx", index_col=0, parse_dates=True
     )
     df = pd.DataFrame(data_historis)
+    df = df.drop(columns=["Time Open", "Time High", "Time Low", "Time Close"], axis=1)
 
     with open(f"./data_historis/{dropdown}_data_historis.xlsx", "rb") as file_historis:
         st.download_button(
@@ -85,7 +89,6 @@ if len(dropdown) > 0:
         )
 
     cols1 = df.columns.tolist()
-
     cols1.remove("Date")
     cols1.remove("Volume")
     cols1.remove("Market Cap")
@@ -132,7 +135,7 @@ if len(dropdown) > 0:
     st.write("Data Historis setelah dilakukan proses Min-Max Scaling")
     st.dataframe(crypto_data, use_container_width=True)
 
-    training_size = round(len(crypto_data) * 0.90)
+    training_size = round(len(crypto_data) * 0.70)
     train_data = crypto_data[:training_size]
     test_data = crypto_data[training_size:]
 
@@ -216,9 +219,6 @@ if len(dropdown) > 0:
         )
         * 100
     )
-    # epsilon = 1e-4
-    # error = np.abs(test_inverse - test_inverse_predicted) / (test_inverse + epsilon)
-    # mape_usd = np.mean(error)
 
     test_inverse_predicted_shape_negative = -test_inverse_predicted.shape[0]
 
@@ -270,7 +270,17 @@ if len(dropdown) > 0:
     RMSE_close_percentage = (RMSE_close / np.mean(new_data["Close"])) * 100
     st.write(f"RMSE Close {dropdown} : {RMSE_close:.3f} atau {RMSE_close_percentage:.3f}%")
 
-
+    @st.cache_data
+    def plot_actual_vs_predicted(dataframe, opsi):
+        fig, ax = plt.subplots(figsize=(15, 7.5))
+        for item in opsi:
+            dataframe[[item]].plot(ax=ax)
+        ax.set_xticklabels(dataframe.index, rotation=45)
+        ax.set_xlabel('Date')
+        ax.set_ylabel('Crypto Price')
+        ax.set_title('Actual vs Predicted  price')
+        ax.legend()
+        return fig
 
     option2 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart",
@@ -278,17 +288,26 @@ if len(dropdown) > 0:
         default=["Open", "open_predicted"],
         key="chart_predict",
     )
+
     if option2:
         data = new_data[option2]
         st.line_chart(data, y=option2)
+
+        # Memanggil fungsi untuk membuat plot
+        fig = plot_actual_vs_predicted(new_data, option2)
+
+        # Menampilkan plot di aplikasi Streamlit
+        st.pyplot(fig)
     else:
         st.warning("Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!")
+    
     new_rows = pd.DataFrame(
         index=pd.date_range(
             start=new_data.index[-1], end=end_predict, freq="D", inclusive="right"
         ),
         columns=new_data.columns[:4],
     )
+
     new_pred_data = pd.concat(
         [
             new_data.drop(
@@ -422,7 +441,7 @@ if len(dropdown) > 0:
             mime="application/vnd.ms-excel",
         )
 
-    fig, ax = plt.subplots(figsize=(20, 10))
+    fig, ax = plt.subplots(figsize=(10, 7.5))
     ax.plot(
         new_pred_data.loc["2023-01-01":, option3], label=f"Harga {option3_str} Terkini"
     )
@@ -433,7 +452,8 @@ if len(dropdown) > 0:
     ax.plot(
         latest_price.loc["2024-01-01":, option3], label=f"Harga {option3_str} terbaru"
     )
-    plt.setp(ax.xaxis.get_majorticklabels(), rotation=45)
+    ax.xaxis.set_major_formatter(DateFormatter('%Y-%m-%d'))  # Menyesuaikan formatter sumbu x
+    plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha='right')  # Menetapkan label pada sumbu x
     ax.set_xlabel("Tanggal", size=15)
     ax.set_ylabel(f"{dropdown_index} Price", size=15)
     ax.set_title(
