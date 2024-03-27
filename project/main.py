@@ -47,25 +47,24 @@ def load_trained_model(path_to_model):
 
 
 with st.sidebar:
-    with st.form("first_form"):
         dropdown_index = st.selectbox(
             "Pilih Salah Satu Cryptocurrency", namaCrypto, key="input_crypto"
         )
         dropdown = symbolCrypto[namaCrypto.index(dropdown_index)]
         if dropdown:
-            start_predict = st.date_input(
-                "Tanggal Awal Prediksi",
-                value=pd.to_datetime("2024-01-01"),
-                min_value=pd.to_datetime("2024-01-01"),
-                key="input_start",
-            )
+            with st.form("first_form"):
+                start_predict = st.date_input(
+                    "Tanggal Awal Prediksi",
+                    value=pd.to_datetime("2024-01-01"),
+                    min_value=pd.to_datetime("2024-01-01"),
+                    key="input_start",
+                )
 
-            end_predict = st.date_input(
-                "Tanggal Akhir Prediksi", value=pd.to_datetime("today"), key="input_end"
-            )
-
-        periode = (start_predict - end_predict).days - 1
-        st.form_submit_button("Submit")
+                end_predict = st.date_input(
+                    "Tanggal Akhir Prediksi", value=pd.to_datetime("today"), key="input_end"
+                )
+                periode = (start_predict - end_predict).days - 1
+                st.form_submit_button("Submit")
 
 st.subheader(
     "Berikut 5 Cryoptocurrency tertinggi berdasarkan Market Capitalization per 31 Desember 2023"
@@ -135,7 +134,7 @@ if len(dropdown) > 0:
     st.write("Data Historis setelah dilakukan proses Min-Max Scaling")
     st.dataframe(crypto_data, use_container_width=True)
 
-    training_size = round(len(crypto_data) * 0.70)
+    training_size = round(len(crypto_data) * 0.80)
     train_data = crypto_data[:training_size]
     test_data = crypto_data[training_size:]
 
@@ -169,23 +168,25 @@ if len(dropdown) > 0:
 
     train_seq, train_label = create_sequence(train_data)
     test_seq, test_label = create_sequence(test_data)
+    
+    # st.write(test_seq)
     with st.expander("Data Latih dan Data Uji"):
-        train_col_1, train_col_2, train_col_3 = st.columns(3)
-        with train_col_1:
+        train_column_1, train_column_2, train_column_3 = st.columns(3)
+        with train_column_1:
             st.write("Train Sequence", train_seq.shape)
             st.write(train_seq[0])
-        with train_col_2:
+        with train_column_2:
             st.write(train_seq[1])
-        with train_col_3:
+        with train_column_3:
             st.write("Train label", train_label.shape)
             st.write(train_label)
-        test_col_1, test_col_2, test_col_3 = st.columns(3)
-        with test_col_1:
+        test_column_1, test_column_2, test_column_3 = st.columns(3)
+        with test_column_1:
             st.write("Test Sequence", test_seq.shape)
             st.write(test_seq[0])
-        with test_col_2:
+        with test_column_2:
             st.write(test_seq[1])
-        with test_col_3:
+        with test_column_3:
             st.write("Test Label", test_label.shape)
             st.write(test_label)
 
@@ -242,10 +243,46 @@ if len(dropdown) > 0:
         new_data[["Open", "High", "Low", "Close"]]
     )
 
+    # Menghitung margin of error untuk kolom open
+    new_data['open_margin_of_error'] = new_data['Open'] - new_data['open_predicted']
+    # Menghitung margin of error dalam bentuk persentase untuk kolom open
+    new_data['open_margin_of_error_percent'] = ((new_data['Open'] - new_data['open_predicted']) / new_data['Open']) * 100
+
+    # Menghitung margin of error untuk kolom high
+    new_data['high_margin_of_error'] = new_data['High'] - new_data['high_predicted']
+    # Menghitung margin of error dalam bentuk persentase untuk kolom high
+    new_data['high_margin_of_error_percent'] = ((new_data['High'] - new_data['high_predicted']) / new_data['High']) * 100
+
+    # Menghitung margin of error untuk kolom low
+    new_data['low_margin_of_error'] = new_data['Low'] - new_data['low_predicted']
+    # Menghitung margin of error dalam bentuk persentase untuk kolom low
+    new_data['low_margin_of_error_percent'] = ((new_data['Low'] - new_data['low_predicted']) / new_data['Low']) * 100
+
+    # Menghitung margin of error untuk kolom close
+    new_data['close_margin_of_error'] = new_data['Close'] - new_data['close_predicted']
+    # Menghitung margin of error dalam bentuk persentase untuk kolom close
+    new_data['close_margin_of_error_percent'] = ((new_data['Close'] - new_data['close_predicted']) / new_data['Close']) * 100
+
     cols2 = new_data.columns.tolist()
     st.subheader(f"Berikut data {dropdown_index} Terkini dan yang Teprediksi")
     st.dataframe(new_data, use_container_width=True)
+    
+    mean_open_margin_of_error = np.mean(new_data['open_margin_of_error'])
+    mean_high_margin_of_error = np.mean(new_data['high_margin_of_error'])
+    mean_low_margin_of_error = np.mean(new_data['low_margin_of_error'])
+    mean_close_margin_of_error = np.mean(new_data['close_margin_of_error'])
 
+    mean_open_margin_of_error_percent = np.mean(new_data['open_margin_of_error_percent'])
+    mean_high_margin_of_error_percent = np.mean(new_data['high_margin_of_error_percent'])
+    mean_low_margin_of_error_percent = np.mean(new_data['low_margin_of_error_percent'])
+    mean_close_margin_of_error_percent = np.mean(new_data['close_margin_of_error_percent'])
+
+    st.write(f"Rata-rata Margin of Error Open : {mean_open_margin_of_error:.3f} atau {mean_open_margin_of_error_percent:.3f}%")
+    st.write(f"Rata-rata Margin of Error High : {mean_high_margin_of_error:.3f} atau {mean_high_margin_of_error_percent:.3f}%")
+    st.write(f"Rata-rata Margin of Error Low : {mean_low_margin_of_error:.3f} atau {mean_low_margin_of_error_percent:.3f}%")
+    st.write(f"Rata-rata Margin of Error Close : {mean_close_margin_of_error:.3f} atau {mean_close_margin_of_error_percent:.3f}%")
+   
+    st.write("--------")
     #RMSE Open
     MSE_open = mean_squared_error(new_data["Open"], new_data["open_predicted"])
     RMSE_open = math.sqrt(MSE_open)
@@ -308,7 +345,7 @@ if len(dropdown) > 0:
         columns=new_data.columns[:4],
     )
 
-    new_pred_data = pd.concat(
+    new_prediction_data = pd.concat(
         [
             new_data.drop(
                 columns=[
@@ -324,7 +361,7 @@ if len(dropdown) > 0:
         axis=0,
     )
     upcoming_prediction = pd.DataFrame(
-        columns=["Open", "High", "Low", "Close"], index=new_pred_data.index
+        columns=["Open", "High", "Low", "Close"], index=new_prediction_data.index
     )
     upcoming_prediction.index = pd.to_datetime(upcoming_prediction.index)
 
@@ -367,7 +404,7 @@ if len(dropdown) > 0:
 
     latest_price = get_latest_price(dropdown, start_predict, end_predict)
 
-    diff_col_name_latest_price = latest_price.rename(
+    diff_column_name_latest_price = latest_price.rename(
         columns={
             "Open": "Open_Latest",
             "High": "High_Latest",
@@ -375,7 +412,7 @@ if len(dropdown) > 0:
             "Close": "Close_Latest",
         }
     )
-    diff_col_name_upcoming_prediction = upcoming_prediction.rename(
+    diff_column_name_upcoming_prediction = upcoming_prediction.rename(
         columns={
             "Open": "Open_Future",
             "High": "High_Future",
@@ -391,13 +428,15 @@ if len(dropdown) > 0:
     )
     option3_str = str(option3)
     option3_latest = f"{option3}_Latest"
+    option3_future = f"{option3}_Predicted"
     data_prediction = upcoming_prediction[option3]
     data_prediction = data_prediction[start_predict:]
     data_combined = pd.concat(
-        [data_prediction, diff_col_name_latest_price[option3_latest]], axis=1
+        [data_prediction, diff_column_name_latest_price[option3_latest]], axis=1
     )
+    data_combined = data_combined.rename(columns={f"{option3}": f"{option3_future}"})
     all_data_combined = pd.concat(
-        [diff_col_name_upcoming_prediction[start_predict:], diff_col_name_latest_price],
+        [diff_column_name_upcoming_prediction[start_predict:], diff_column_name_latest_price],
         axis=1,
     )
 
@@ -417,33 +456,33 @@ if len(dropdown) > 0:
             mime="application/vnd.ms-excel",
         )
 
-    pred_data_excel = io.BytesIO()
-    with pd.ExcelWriter(pred_data_excel, engine="xlsxwriter") as writer:
+    prediction_data_excel = io.BytesIO()
+    with pd.ExcelWriter(prediction_data_excel, engine="xlsxwriter") as writer:
         upcoming_prediction[start_predict:].to_excel(writer)
     with download_btn_pred:
         st.download_button(
             label=f"Download {dropdown_index} Prediction Data",
-            data=pred_data_excel,
+            data=prediction_data_excel,
             file_name=f"{dropdown}_prediction.xlsx",
             mime="application/vnd.ms-excel",
         )
 
-    diff_col_name_latest_price_excel = io.BytesIO()
+    diff_column_name_latest_price_excel = io.BytesIO()
     with pd.ExcelWriter(
-        diff_col_name_latest_price_excel, engine="xlsxwriter"
+        diff_column_name_latest_price_excel, engine="xlsxwriter"
     ) as writer:
-        diff_col_name_latest_price.to_excel(writer)
+        diff_column_name_latest_price.to_excel(writer)
     with download_btn_latest:
         st.download_button(
             label=f"Download {dropdown_index} Latest Data",
-            data=diff_col_name_latest_price_excel,
+            data=diff_column_name_latest_price_excel,
             file_name=f"{dropdown}_latest.xlsx",
             mime="application/vnd.ms-excel",
         )
 
     fig, ax = plt.subplots(figsize=(10, 7.5))
     ax.plot(
-        new_pred_data.loc["2023-01-01":, option3], label=f"Harga {option3_str} Terkini"
+        new_prediction_data.loc["2023-01-01":, option3], label=f"Harga {option3_str} Terkini"
     )
     ax.plot(
         upcoming_prediction.loc["2024-01-01":, option3],
