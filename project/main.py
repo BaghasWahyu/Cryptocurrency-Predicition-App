@@ -1,7 +1,7 @@
 import io as io
 
 import matplotlib.pyplot as plt
-from matplotlib.dates import DateFormatter, AutoDateLocator
+from matplotlib.dates import DateFormatter
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -10,6 +10,7 @@ from cryptocmd import CmcScraper
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_error, mean_squared_error
+from datetime import timedelta
 
 
 from scrape import symbolCrypto, list_crypto, namaCrypto
@@ -134,9 +135,15 @@ if len(dropdown) > 0:
     st.write("Data Historis setelah dilakukan proses Min-Max Scaling")
     st.dataframe(crypto_data, use_container_width=True)
 
-    training_size = round(len(crypto_data) * 0.80)
-    train_data = crypto_data[:training_size]
-    test_data = crypto_data[training_size:]
+    # training_size = round(len(crypto_data) * 0.80)
+    # train_data = crypto_data[:training_size]
+    # test_data = crypto_data[training_size:]
+
+    # Pembagian Data Latih dan Data Uji
+    end_date = '2022-12-31'
+    start_date_test = pd.to_datetime(end_date) + timedelta(days=1)
+    train_data = crypto_data[:end_date]
+    test_data = crypto_data[start_date_test:]
 
     total_train_data, total_test_data = st.columns(2)
     with total_train_data:
@@ -206,17 +213,17 @@ if len(dropdown) > 0:
 
     test_predicted = loaded_model.predict(test_seq)
     test_inverse_predicted = MMS.inverse_transform(test_predicted)
-    test_inverse = MMS.inverse_transform(test_label)
+    test_inverse_label = MMS.inverse_transform(test_label)
 
     st.write(f"Test sequence shape {test_seq.shape}")
     st.write(f"Test label shape {test_label.shape}")
     st.write(f"Test predicted shape {test_predicted.shape}")
 
-    MAE = mean_absolute_error(test_inverse, test_inverse_predicted)
+    MAE = mean_absolute_error(test_inverse_label, test_inverse_predicted)
     
     MAPE = (
         np.mean(
-            (np.abs(np.subtract(test_inverse, test_inverse_predicted) / test_inverse))
+            (np.abs(np.subtract(test_inverse_label, test_inverse_predicted) / test_inverse_label))
         )
         * 100
     )
@@ -283,6 +290,7 @@ if len(dropdown) > 0:
     st.write(f"Rata-rata Margin of Error Close : {mean_close_margin_of_error:.3f} atau {mean_close_margin_of_error_percent:.3f}%")
    
     st.write("--------")
+
     #RMSE Open
     MSE_open = mean_squared_error(new_data["Open"], new_data["open_predicted"])
     RMSE_open = math.sqrt(MSE_open)
