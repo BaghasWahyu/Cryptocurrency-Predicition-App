@@ -5,3 +5,4 @@ Pipfile
 project/test.py
 project/__pycache__
 __pycache__
+/project/__pycache__
