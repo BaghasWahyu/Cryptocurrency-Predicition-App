@@ -2,4 +2,6 @@ Pipfile.lock
 .vscode/*
 .devcontainer/*
 Pipfile
-requirements - copy.txt
+project/test.py
+project/__pycache__
+__pycache__
