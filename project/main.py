@@ -22,11 +22,11 @@ MMS = MinMaxScaler(feature_range=(0, 1))
 if "input_crypto" not in st.session_state:
     st.session_state["input_crypto"] = "Bitcoin"
 
-if "input_start" not in st.session_state:
-    st.session_state["input_start"] = pd.to_datetime("2024-01-01")
+# if "input_start" not in st.session_state:
+#     st.session_state["input_start"] = pd.to_datetime("2024-01-01")
 
-if "input_end" not in st.session_state:
-    st.session_state["input_end"] = pd.to_datetime("today")
+# if "input_end" not in st.session_state:
+#     st.session_state["input_end"] = pd.to_datetime("today")
 
 if "chart_crypto_1" not in st.session_state:
     st.session_state["chart_crypto_1"] = ["Open"]
@@ -46,6 +46,53 @@ def load_trained_model(path_to_model):
     model = load_model(path_to_model)
     return model
 
+@st.cache_data
+def create_sequence(dataset):
+    sequences = []
+    labels = []
+
+    start_idx = 0
+    for stop_idx in range(5, len(dataset)):
+        sequences.append(dataset.iloc[start_idx:stop_idx])
+        labels.append(dataset.iloc[stop_idx])
+        start_idx += 1
+
+    return np.array(sequences), np.array(labels)
+
+@st.cache_data
+def plot_actual_vs_predicted(dataframe, opsi):
+    fig, ax = plt.subplots(figsize=(15, 7.5))
+    for item in opsi:
+        dataframe[[item]].plot(ax=ax)
+    ax.set_xticklabels(dataframe.index, rotation=45)
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Crypto Price')
+    ax.set_title('Actual vs Predicted  price')
+    ax.legend()
+    return fig
+
+@st.cache_data
+def get_latest_price(cryptocurrency, start_predict, end_predict):
+    latest_date_start = start_predict.strftime("%d-%m-%Y")
+
+    latest_date_end = end_predict.strftime("%d-%m-%Y")
+
+    latest_scraper = CmcScraper(cryptocurrency, latest_date_start, latest_date_end)
+    latest_price = latest_scraper.get_dataframe()
+
+    latest_price["Open"] = latest_price["Open"].apply(lambda x: round(x, 2))
+    latest_price["High"] = latest_price["High"].apply(lambda x: round(x, 2))
+    latest_price["Low"] = latest_price["Low"].apply(lambda x: round(x, 2))
+    latest_price["Close"] = latest_price["Close"].apply(lambda x: round(x, 2))
+
+    latest_price = latest_price[::-1]
+    latest_price = latest_price.reset_index()
+
+    latest_price = latest_price[["Date", "Open", "High", "Low", "Close"]]
+    latest_price["Date"] = pd.to_datetime(latest_price["Date"])
+    latest_price.set_index("Date", drop=True, inplace=True)
+
+    return latest_price
 
 with st.sidebar:
         dropdown_index = st.selectbox(
@@ -130,6 +177,8 @@ if len(dropdown) > 0:
     crypto_data = df[["Date", "Open", "High", "Low", "Close"]]
     crypto_data["Date"] = pd.to_datetime(crypto_data["Date"])
     crypto_data.set_index("Date", drop=True, inplace=True)
+    crypto_data_real = crypto_data.copy()
+    st.write(crypto_data_real)
     crypto_data[crypto_data.columns] = MMS.fit_transform(crypto_data)
 
     st.write("Data Historis setelah dilakukan proses Min-Max Scaling")
@@ -160,18 +209,18 @@ if len(dropdown) > 0:
             pd.DataFrame(test_data)
         )
 
-    @st.cache_data
-    def create_sequence(dataset):
-        sequences = []
-        labels = []
+    # @st.cache_data
+    # def create_sequence(dataset):
+    #     sequences = []
+    #     labels = []
 
-        start_idx = 0
+    #     start_idx = 0
 
-        for stop_idx in range(5, len(dataset)):
-            sequences.append(dataset.iloc[start_idx:stop_idx])
-            labels.append(dataset.iloc[stop_idx])
-            start_idx += 1
-        return (np.array(sequences), np.array(labels))
+    #     for stop_idx in range(5, len(dataset)):
+    #         sequences.append(dataset.iloc[start_idx:stop_idx])
+    #         labels.append(dataset.iloc[stop_idx])
+    #         start_idx += 1
+    #     return (np.array(sequences), np.array(labels))
 
     train_seq, train_label = create_sequence(train_data)
     test_seq, test_label = create_sequence(test_data)
@@ -227,8 +276,7 @@ if len(dropdown) > 0:
         )
         * 100
     )
-
-    test_inverse_predicted_shape_negative = -test_inverse_predicted.shape[0]
+    test_inverse_predicted_shape_negative = -(test_inverse_predicted.shape[0])
 
     new_data = pd.concat(
         [
@@ -270,8 +318,12 @@ if len(dropdown) > 0:
     # Menghitung margin of error dalam bentuk persentase untuk kolom close
     new_data['close_margin_of_error_percent'] = ((new_data['Close'] - new_data['close_predicted']) / new_data['Close']) * 100
 
+    new_data_monthly = new_data.resample('1M').mean()
+
+
     cols2 = new_data.columns.tolist()
     st.subheader(f"Berikut data {dropdown_index} Terkini dan yang Teprediksi")
+    st.text("Harian")
     st.dataframe(new_data, use_container_width=True)
     
     mean_open_margin_of_error = np.mean(new_data['open_margin_of_error'])
@@ -289,6 +341,26 @@ if len(dropdown) > 0:
     st.write(f"Rata-rata Margin of Error Low : {mean_low_margin_of_error:.3f} atau {mean_low_margin_of_error_percent:.3f}%")
     st.write(f"Rata-rata Margin of Error Close : {mean_close_margin_of_error:.3f} atau {mean_close_margin_of_error_percent:.3f}%")
    
+    st.write("--------")
+
+    st.text("Bulanan")
+    st.dataframe(new_data_monthly, use_container_width=True)
+
+    mean_open_monthly_margin_of_error = np.mean(new_data_monthly['open_margin_of_error'])
+    mean_high_monthly_margin_of_error = np.mean(new_data_monthly['high_margin_of_error'])
+    mean_low_monthly_margin_of_error = np.mean(new_data_monthly['low_margin_of_error'])
+    mean_close_monthly_margin_of_error = np.mean(new_data_monthly['close_margin_of_error'])
+
+    mean_open_monthly_margin_of_error_percent = np.mean(new_data_monthly['open_margin_of_error_percent'])
+    mean_high_monthly_margin_of_error_percent = np.mean(new_data_monthly['high_margin_of_error_percent'])
+    mean_low_monthly_margin_of_error_percent = np.mean(new_data_monthly['low_margin_of_error_percent'])
+    mean_close_monthly_margin_of_error_percent = np.mean(new_data_monthly['close_margin_of_error_percent'])
+
+    st.write(f"Rata-rata Margin of Error Open : {mean_open_monthly_margin_of_error:.3f} atau {mean_open_monthly_margin_of_error_percent:.3f}%")
+    st.write(f"Rata-rata Margin of Error High : {mean_high_monthly_margin_of_error:.3f} atau {mean_high_monthly_margin_of_error_percent:.3f}%")
+    st.write(f"Rata-rata Margin of Error Low : {mean_low_monthly_margin_of_error:.3f} atau {mean_low_monthly_margin_of_error_percent:.3f}%")
+    st.write(f"Rata-rata Margin of Error Close : {mean_close_monthly_margin_of_error:.3f} atau {mean_close_monthly_margin_of_error_percent:.3f}%")
+
     st.write("--------")
 
     #RMSE Open
@@ -314,18 +386,6 @@ if len(dropdown) > 0:
     RMSE_close = math.sqrt(MSE_close)
     RMSE_close_percentage = (RMSE_close / np.mean(new_data["Close"])) * 100
     st.write(f"RMSE Close {dropdown} : {RMSE_close:.3f} atau {RMSE_close_percentage:.3f}%")
-
-    @st.cache_data
-    def plot_actual_vs_predicted(dataframe, opsi):
-        fig, ax = plt.subplots(figsize=(15, 7.5))
-        for item in opsi:
-            dataframe[[item]].plot(ax=ax)
-        ax.set_xticklabels(dataframe.index, rotation=45)
-        ax.set_xlabel('Date')
-        ax.set_ylabel('Crypto Price')
-        ax.set_title('Actual vs Predicted  price')
-        ax.legend()
-        return fig
 
     option2 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart",
@@ -386,29 +446,6 @@ if len(dropdown) > 0:
     )
 
     cols3 = upcoming_prediction.columns.tolist()
-
-    @st.cache_data
-    def get_latest_price(cryptocurrency, start_predict, end_predict):
-        latest_date_start = start_predict.strftime("%d-%m-%Y")
-
-        latest_date_end = end_predict.strftime("%d-%m-%Y")
-
-        latest_scraper = CmcScraper(cryptocurrency, latest_date_start, latest_date_end)
-        latest_price = latest_scraper.get_dataframe()
-
-        latest_price["Open"] = latest_price["Open"].apply(lambda x: round(x, 2))
-        latest_price["High"] = latest_price["High"].apply(lambda x: round(x, 2))
-        latest_price["Low"] = latest_price["Low"].apply(lambda x: round(x, 2))
-        latest_price["Close"] = latest_price["Close"].apply(lambda x: round(x, 2))
-
-        latest_price = latest_price[::-1]
-        latest_price = latest_price.reset_index()
-
-        latest_price = latest_price[["Date", "Open", "High", "Low", "Close"]]
-        latest_price["Date"] = pd.to_datetime(latest_price["Date"])
-        latest_price.set_index("Date", drop=True, inplace=True)
-
-        return latest_price
 
     latest_price = get_latest_price(dropdown, start_predict, end_predict)
 
