@@ -318,6 +318,7 @@ if len(dropdown) > 0:
         (new_data["Close"] - new_data["close_predicted"]) / new_data["Close"]
     ) * 100
 
+    # Pembulatan nilai pada dataframe
     new_data = new_data.round(2)
 
     cols2 = new_data.columns.tolist()
