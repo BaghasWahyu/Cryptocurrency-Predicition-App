@@ -57,9 +57,9 @@ def create_sequence(dataset):
 @st.cache_data
 def plot_actual_vs_predicted(dataframe, opsi):
     fig, ax = plt.subplots(figsize=(15, 7.5))
+    ax.set_xticklabels(dataframe.index, rotation=45)
     for item in opsi:
         dataframe[[item]].plot(ax=ax)
-    ax.set_xticklabels(dataframe.index, rotation=45)
     ax.set_xlabel("Date")
     ax.set_ylabel("Crypto Price")
     ax.set_title("Actual vs Predicted  price")
@@ -229,7 +229,7 @@ if len(dropdown) > 0:
             st.write("Test Label", test_label.shape)
             st.write(test_label)
 
-    loaded_model = load_trained_model(f"./model/{dropdown}_model")
+    loaded_model = load_trained_model(f"./model/{dropdown}_model.keras")
     with st.expander("Ringkasan Model"):
         loaded_model.summary(print_fn=st.write)
         for layer in loaded_model.layers:
@@ -282,11 +282,16 @@ if len(dropdown) > 0:
         ],
         axis=1,
     )
+
     new_data[["Open", "High", "Low", "Close"]] = MMS.inverse_transform(
         new_data[["Open", "High", "Low", "Close"]]
     )
+    # Memeriksa kolom yang memiliki tipe data float32 pada DataFrame new_data
+    float32_columns = new_data.select_dtypes(include="float32").columns
 
-    # Menghitung margin of error untuk kolom open
+    # Mengubah tipe data kolom tersebut menjadi float64
+    new_data[float32_columns] = new_data[float32_columns].astype("float64")
+
     new_data["open_margin_of_error"] = new_data["Open"] - new_data["open_predicted"]
     # Menghitung margin of error dalam bentuk persentase untuk kolom open
     new_data["open_margin_of_error_percent"] = (
@@ -314,11 +319,20 @@ if len(dropdown) > 0:
         (new_data["Close"] - new_data["close_predicted"]) / new_data["Close"]
     ) * 100
 
-    new_data_monthly = new_data.resample("1M").mean()
+    new_data = new_data.round(2)
 
     cols2 = new_data.columns.tolist()
     st.subheader(f"Berikut data {dropdown_index} Terkini dan yang Teprediksi")
     st.text("Harian")
+    new_data_daily_io = io.BytesIO()
+    with pd.ExcelWriter(new_data_daily_io, engine="xlsxwriter") as writer:
+        new_data.to_excel(writer)
+    st.download_button(
+        label=f"Download Data Harian {dropdown_index}",
+        data=new_data_daily_io,
+        file_name=f"{dropdown}_daily.xlsx",
+        mime="application/vnd.ms-excel",
+    )
     st.dataframe(new_data, use_container_width=True)
 
     mean_open_margin_of_error = np.mean(new_data["open_margin_of_error"])
@@ -352,16 +366,30 @@ if len(dropdown) > 0:
 
     st.write("--------")
 
+    new_data_monthly = new_data.resample("1ME").mean()
+    new_data_monthly = new_data_monthly.round(2)
     st.text("Bulanan")
+    new_data_monthly_io = io.BytesIO()
+    with pd.ExcelWriter(new_data_monthly_io, engine="xlsxwriter") as writer:
+        new_data_monthly.to_excel(writer)
+    st.download_button(
+        label=f"Download Data Bulanan {dropdown_index}",
+        data=new_data_monthly_io,
+        file_name=f"{dropdown}_monthly.xlsx",
+        mime="application/vnd.ms-excel",
+    )
     st.dataframe(new_data_monthly, use_container_width=True)
 
     mean_open_monthly_margin_of_error = np.mean(
         new_data_monthly["open_margin_of_error"]
     )
+
     mean_high_monthly_margin_of_error = np.mean(
         new_data_monthly["high_margin_of_error"]
     )
+
     mean_low_monthly_margin_of_error = np.mean(new_data_monthly["low_margin_of_error"])
+
     mean_close_monthly_margin_of_error = np.mean(
         new_data_monthly["close_margin_of_error"]
     )
@@ -428,14 +456,27 @@ if len(dropdown) > 0:
     )
 
     if option2:
-        data = new_data[option2]
-        st.line_chart(data, y=option2)
+        st.subheader("Grafik Harian")
+        data_daily = new_data[option2]
+        st.line_chart(data_daily, y=option2)
 
         # Memanggil fungsi untuk membuat plot
-        fig = plot_actual_vs_predicted(new_data, option2)
+        fig_daily = plot_actual_vs_predicted(new_data, option2)
 
         # Menampilkan plot di aplikasi Streamlit
-        st.pyplot(fig)
+        st.pyplot(fig_daily)
+        st.write("--------")
+
+        st.subheader("Grafik Bulanan")
+        data_monthly = new_data_monthly[option2]
+        st.line_chart(data_monthly, y=option2)
+
+        # Memanggil fungsi untuk membuat plot
+        fig_monthly = plot_actual_vs_predicted(new_data_monthly, option2)
+
+        # Menampilkan plot di aplikasi Streamlit
+        st.pyplot(fig_monthly)
+
     else:
         st.warning("Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!")
 
