@@ -175,15 +175,14 @@ if len(dropdown) > 0:
     crypto_data["Date"] = pd.to_datetime(crypto_data["Date"])
     crypto_data.set_index("Date", drop=True, inplace=True)
     crypto_data_real = crypto_data.copy()
-    st.write(crypto_data_real)
     crypto_data[crypto_data.columns] = MMS.fit_transform(crypto_data)
 
     st.write("Data Historis setelah dilakukan proses Min-Max Scaling")
     st.dataframe(crypto_data, use_container_width=True)
 
     # Pembagian Data Latih dan Data Uji
-    end_date = "2022-12-31"
-    start_date_test = pd.to_datetime(end_date) + timedelta(days=1)
+    end_date = pd.to_datetime("2022-12-31")
+    start_date_test = end_date + timedelta(days=1)
     train_data = crypto_data[:end_date]
     test_data = crypto_data[start_date_test:]
 
