@@ -418,6 +418,9 @@ if len(dropdown) > 0:
         st.write(
             f"Rata-rata Margin of Error {dropdown_index} Close Harian : {mean_close_margin_of_error:.3f} atau {mean_close_margin_of_error_percent:.3f}%"
         )
+
+        st.write("--------")
+
         # RMSE Open Daily
         MSE_open = mean_squared_error(new_data["Open"], new_data["open_predicted"])
         RMSE_open = np.sqrt(MSE_open)
@@ -449,7 +452,7 @@ if len(dropdown) > 0:
         st.write(
             f"RMSE Close Harian {dropdown} : {RMSE_close:.3f} atau {RMSE_close_percentage:.3f}%"
         )
-    st.write("--------")
+        st.write("--------")
 
     new_data_monthly = new_data.resample("1ME").mean()
     new_data_monthly = new_data_monthly.round(number)
