@@ -5,12 +5,11 @@ from matplotlib.dates import DateFormatter
 import numpy as np
 import pandas as pd
 import streamlit as st
-import math
 from cryptocmd import CmcScraper
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_error, mean_squared_error
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from scrape import symbolCrypto, list_crypto, namaCrypto
 
@@ -20,6 +19,15 @@ MMS = MinMaxScaler(feature_range=(0, 1))
 
 if "input_crypto" not in st.session_state:
     st.session_state["input_crypto"] = "Bitcoin"
+
+if "input_epoch" not in st.session_state:
+    st.session_state["input_epoch"] = "25"
+
+if "input_neuron" not in st.session_state:
+    st.session_state["input_neuron"] = "50"
+
+if "input_batch_size" not in st.session_state:
+    st.session_state["input_batch_size"] = "16"
 
 if "chart_crypto_1" not in st.session_state:
     st.session_state["chart_crypto_1"] = ["Open"]
@@ -83,10 +91,8 @@ def get_latest_price(cryptocurrency, start_predict, end_predict):
 
     latest_price = latest_price[::-1]
     latest_price = latest_price.reset_index()
-
-    latest_price = latest_price[["Date", "Open", "High", "Low", "Close"]]
-    latest_price["Date"] = pd.to_datetime(latest_price["Date"])
-    latest_price.set_index("Date", drop=True, inplace=True)
+    latest_price = latest_price.reset_index()
+    latest_price = latest_price.drop(columns=["index"])
 
     return latest_price
 
@@ -94,6 +100,20 @@ def get_latest_price(cryptocurrency, start_predict, end_predict):
 with st.sidebar:
     dropdown_index = st.selectbox(
         "Pilih Salah Satu Cryptocurrency", namaCrypto, key="input_crypto"
+    )
+
+    epochs_list = [25, 50]
+    neurons_list = [50, 100]
+    batch_sizes = [16, 32]
+
+    epoch_option = st.selectbox(
+        "Pilih Salah Satu Epoch", epochs_list, key="input_epoch"
+    )
+    neurons_option = st.selectbox(
+        "Pilih Salah Satu Neurons", neurons_list, key="input_neuron"
+    )
+    batch_size_option = st.selectbox(
+        "Pilih Salah Satu Batch Size", batch_sizes, key="input_batch_size"
     )
     dropdown = symbolCrypto[namaCrypto.index(dropdown_index)]
     if dropdown:
@@ -121,7 +141,17 @@ if len(dropdown) > 0:
     data_historis = pd.read_excel(
         f"./data_historis/{dropdown}_data_historis.xlsx", index_col=0, parse_dates=True
     )
-    df = pd.DataFrame(data_historis)
+    startdate = "2019-01-01"
+    startdate = datetime.strptime(startdate, "%Y-%m-%d").date()
+
+    enddate = datetime.now()
+    enddate = enddate.date()
+
+    df_latest_price = get_latest_price(dropdown, startdate, enddate)
+    if not df_latest_price.equals(data_historis):
+        df_latest_price.to_excel(f"./data_historis/{dropdown}_data_historis.xlsx")
+
+    df = data_historis
     df = df.drop(columns=["Time Open", "Time High", "Time Low", "Time Close"], axis=1)
 
     with open(f"./data_historis/{dropdown}_data_historis.xlsx", "rb") as file_historis:
@@ -228,7 +258,9 @@ if len(dropdown) > 0:
             st.write("Test Label", test_label.shape)
             st.write(test_label)
 
-    loaded_model = load_trained_model(f"./model/{dropdown}_model.keras")
+    loaded_model = load_trained_model(
+        f"./model/Model_{dropdown}_Epochs_{epoch_option}_Neurons_{neurons_option}_Batch_{batch_size_option}.keras"
+    )
     with st.expander("Ringkasan Model"):
         loaded_model.summary(print_fn=st.write)
         for layer in loaded_model.layers:
@@ -361,16 +393,16 @@ if len(dropdown) > 0:
 
     if dropdown == "USDT":
         st.write(
-            f"Rata-rata Margin of Error {dropdown_index} Open Harian : {mean_open_margin_of_error:.5f} atau {mean_open_margin_of_error_percent:.5f}%"
+            f"Rata-rata Margin of Error {dropdown_index} Open Harian : {mean_open_margin_of_error} atau {mean_open_margin_of_error_percent}%"
         )
         st.write(
-            f"Rata-rata Margin of Error {dropdown_index} High Harian : {mean_high_margin_of_error:.5f} atau {mean_high_margin_of_error_percent:.5f}%"
+            f"Rata-rata Margin of Error {dropdown_index} High Harian : {mean_high_margin_of_error} atau {mean_high_margin_of_error_percent}%"
         )
         st.write(
-            f"Rata-rata Margin of Error {dropdown_index} Low Harian : {mean_low_margin_of_error:.5f} atau {mean_low_margin_of_error_percent:.5f}%"
+            f"Rata-rata Margin of Error {dropdown_index} Low Harian : {mean_low_margin_of_error} atau {mean_low_margin_of_error_percent}%"
         )
         st.write(
-            f"Rata-rata Margin of Error {dropdown_index} Close Harian : {mean_close_margin_of_error:.5f} atau {mean_close_margin_of_error_percent:.5f}%"
+            f"Rata-rata Margin of Error {dropdown_index} Close Harian : {mean_close_margin_of_error} atau {mean_close_margin_of_error_percent}%"
         )
         st.write("--------")
         # RMSE Open Daily
@@ -378,7 +410,7 @@ if len(dropdown) > 0:
         RMSE_open = np.sqrt(MSE_open)
         RMSE_open_percentage = (RMSE_open / np.mean(new_data["Open"])) * 100
         st.write(
-            f"RMSE Open Harian {dropdown} : {RMSE_open:.5f} atau {RMSE_open_percentage:.5f}%"
+            f"RMSE Open Harian {dropdown} : {RMSE_open} atau {RMSE_open_percentage}%"
         )
 
         # RMSE High Daily
@@ -386,23 +418,21 @@ if len(dropdown) > 0:
         RMSE_high = np.sqrt(MSE_high)
         RMSE_high_percentage = (RMSE_high / np.mean(new_data["High"])) * 100
         st.write(
-            f"RMSE High Harian {dropdown} : {RMSE_high:.5f} atau {RMSE_high_percentage:.5f}%"
+            f"RMSE High Harian {dropdown} : {RMSE_high} atau {RMSE_high_percentage}%"
         )
 
         # RMSE Low Daily
         MSE_low = mean_squared_error(new_data["Low"], new_data["low_predicted"])
         RMSE_low = np.sqrt(MSE_low)
         RMSE_low_percentage = (RMSE_low / np.mean(new_data["Low"])) * 100
-        st.write(
-            f"RMSE Low Harian {dropdown} : {RMSE_low:.5f} atau {RMSE_low_percentage:.5f}%"
-        )
+        st.write(f"RMSE Low Harian {dropdown} : {RMSE_low} atau {RMSE_low_percentage}%")
 
         # RMSE Close Daily
         MSE_close = mean_squared_error(new_data["Close"], new_data["close_predicted"])
         RMSE_close = np.sqrt(MSE_close)
         RMSE_close_percentage = (RMSE_close / np.mean(new_data["Close"])) * 100
         st.write(
-            f"RMSE Close Harian {dropdown} : {RMSE_close:.5f} atau {RMSE_close_percentage:.5f}%"
+            f"RMSE Close Harian {dropdown} : {RMSE_close} atau {RMSE_close_percentage}%"
         )
         st.write("--------")
     else:
@@ -497,16 +527,16 @@ if len(dropdown) > 0:
     )
     if dropdown == "USDT":
         st.write(
-            f"Rata-rata Margin of Error {dropdown_index} Open Bulanan : {mean_open_monthly_margin_of_error:.5f} atau {mean_open_monthly_margin_of_error_percent:.5f}%"
+            f"Rata-rata Margin of Error {dropdown_index} Open Bulanan : {mean_open_monthly_margin_of_error} atau {mean_open_monthly_margin_of_error_percent}%"
         )
         st.write(
-            f"Rata-rata Margin of Error {dropdown_index} High Bulanan : {mean_high_monthly_margin_of_error:.5f} atau {mean_high_monthly_margin_of_error_percent:.5f}%"
+            f"Rata-rata Margin of Error {dropdown_index} High Bulanan : {mean_high_monthly_margin_of_error} atau {mean_high_monthly_margin_of_error_percent}%"
         )
         st.write(
-            f"Rata-rata Margin of Error {dropdown_index} Low Bulanan : {mean_low_monthly_margin_of_error:.5f} atau {mean_low_monthly_margin_of_error_percent:.5f}%"
+            f"Rata-rata Margin of Error {dropdown_index} Low Bulanan : {mean_low_monthly_margin_of_error} atau {mean_low_monthly_margin_of_error_percent}%"
         )
         st.write(
-            f"Rata-rata Margin of Error {dropdown_index} Close Bulanan : {mean_close_monthly_margin_of_error:.5f} atau {mean_close_monthly_margin_of_error_percent:.5f}%"
+            f"Rata-rata Margin of Error {dropdown_index} Close Bulanan : {mean_close_monthly_margin_of_error} atau {mean_close_monthly_margin_of_error_percent}%"
         )
 
         st.write("--------")
@@ -520,7 +550,7 @@ if len(dropdown) > 0:
             RMSE_open_monthly / np.mean(new_data_monthly["Open"])
         ) * 100
         st.write(
-            f"RMSE Open Bulanan {dropdown} : {RMSE_open_monthly:.5f} atau {RMSE_open_percentage_monthly:.5f}%"
+            f"RMSE Open Bulanan {dropdown} : {RMSE_open_monthly} atau {RMSE_open_percentage_monthly}%"
         )
 
         # RMSE High Monthly
@@ -532,7 +562,7 @@ if len(dropdown) > 0:
             RMSE_high_monthly / np.mean(new_data_monthly["High"])
         ) * 100
         st.write(
-            f"RMSE High Bulanan {dropdown} : {RMSE_high_monthly:.5f} atau {RMSE_high_percentage_monthly:.5f}%"
+            f"RMSE High Bulanan {dropdown} : {RMSE_high_monthly} atau {RMSE_high_percentage_monthly}%"
         )
 
         # RMSE Low Monthly
@@ -544,7 +574,7 @@ if len(dropdown) > 0:
             RMSE_low_monthly / np.mean(new_data_monthly["Low"])
         ) * 100
         st.write(
-            f"RMSE Low Bulanan {dropdown} : {RMSE_low_monthly:.5f} atau {RMSE_low_percentage_monthly:.5f}%"
+            f"RMSE Low Bulanan {dropdown} : {RMSE_low_monthly} atau {RMSE_low_percentage_monthly}%"
         )
         # RMSE Close Monthly
         MSE_close_monthly = mean_squared_error(
@@ -555,22 +585,22 @@ if len(dropdown) > 0:
             RMSE_close_monthly / np.mean(new_data_monthly["Close"])
         ) * 100
         st.write(
-            f"RMSE Close Bulanan {dropdown} : {RMSE_close_monthly:.5f} atau {RMSE_close_percentage_monthly:.5f}%"
+            f"RMSE Close Bulanan {dropdown} : {RMSE_close_monthly} atau {RMSE_close_percentage_monthly}%"
         )
         st.write("--------")
 
     else:
         st.write(
-            f"Rata-rata Margin of Error {dropdown_index} Open Bulanan : {mean_open_monthly_margin_of_error:.5f} atau {mean_open_monthly_margin_of_error_percent:.5f}%"
+            f"Rata-rata Margin of Error {dropdown_index} Open Bulanan : {mean_open_monthly_margin_of_error:.3f} atau {mean_open_monthly_margin_of_error_percent:.3f}%"
         )
         st.write(
-            f"Rata-rata Margin of Error {dropdown_index} High Bulanan : {mean_high_monthly_margin_of_error:.5f} atau {mean_high_monthly_margin_of_error_percent:.5f}%"
+            f"Rata-rata Margin of Error {dropdown_index} High Bulanan : {mean_high_monthly_margin_of_error:.3f} atau {mean_high_monthly_margin_of_error_percent:.3f}%"
         )
         st.write(
-            f"Rata-rata Margin of Error {dropdown_index} Low Bulanan : {mean_low_monthly_margin_of_error:.5f} atau {mean_low_monthly_margin_of_error_percent:.5f}%"
+            f"Rata-rata Margin of Error {dropdown_index} Low Bulanan : {mean_low_monthly_margin_of_error:.3f} atau {mean_low_monthly_margin_of_error_percent:.3f}%"
         )
         st.write(
-            f"Rata-rata Margin of Error {dropdown_index} Close Bulanan : {mean_close_monthly_margin_of_error:.5f} atau {mean_close_monthly_margin_of_error_percent:.5f}%"
+            f"Rata-rata Margin of Error {dropdown_index} Close Bulanan : {mean_close_monthly_margin_of_error:.3f} atau {mean_close_monthly_margin_of_error_percent:.3f}%"
         )
 
         st.write("--------")
