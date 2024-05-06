@@ -148,10 +148,11 @@ if len(dropdown) > 0:
     enddate = enddate.date()
 
     df_latest_price = get_latest_price(dropdown, startdate, enddate)
+
     if not df_latest_price.equals(data_historis):
         df_latest_price.to_excel(f"./data_historis/{dropdown}_data_historis.xlsx")
 
-    df = data_historis
+    df = df_latest_price
     df = df.drop(columns=["Time Open", "Time High", "Time Low", "Time Close"], axis=1)
 
     with open(f"./data_historis/{dropdown}_data_historis.xlsx", "rb") as file_historis:
