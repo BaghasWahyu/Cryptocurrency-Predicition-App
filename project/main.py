@@ -153,7 +153,9 @@ if len(dropdown) > 0:
         df_latest_price.to_excel(f"./data_historis/{dropdown}_data_historis.xlsx")
 
     df = df_latest_price
-    df = df.drop(columns=["Time Open", "Time High", "Time Low", "Time Close"], axis=1)
+    df = df.drop(
+        columns=["level_0", "Time Open", "Time High", "Time Low", "Time Close"], axis=1
+    )
 
     with open(f"./data_historis/{dropdown}_data_historis.xlsx", "rb") as file_historis:
         st.download_button(
