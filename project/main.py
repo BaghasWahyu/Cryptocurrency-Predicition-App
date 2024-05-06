@@ -21,13 +21,13 @@ if "input_crypto" not in st.session_state:
     st.session_state["input_crypto"] = "Bitcoin"
 
 if "input_epoch" not in st.session_state:
-    st.session_state["input_epoch"] = "25"
+    st.session_state["input_epoch"] = 25
 
 if "input_neuron" not in st.session_state:
-    st.session_state["input_neuron"] = "50"
+    st.session_state["input_neuron"] = 50
 
 if "input_batch_size" not in st.session_state:
-    st.session_state["input_batch_size"] = "16"
+    st.session_state["input_batch_size"] = 16
 
 if "chart_crypto_1" not in st.session_state:
     st.session_state["chart_crypto_1"] = ["Open"]
