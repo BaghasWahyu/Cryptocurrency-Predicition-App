@@ -138,9 +138,7 @@ st.dataframe(list_crypto, use_container_width=True)
 
 if len(dropdown) > 0:
     st.subheader(f"Berikut data historis {dropdown_index}")
-    data_historis = pd.read_excel(
-        f"./data_historis/{dropdown}_data_historis.xlsx", index_col=0, parse_dates=True
-    )
+
     startdate = "2019-01-01"
     startdate = datetime.strptime(startdate, "%Y-%m-%d").date()
 
@@ -148,7 +146,9 @@ if len(dropdown) > 0:
     enddate = enddate.date()
 
     df_latest_price = get_latest_price(dropdown, startdate, enddate)
-
+    data_historis = pd.read_excel(
+        f"./data_historis/{dropdown}_data_historis.xlsx", index_col=0, parse_dates=True
+    )
     if not df_latest_price.equals(data_historis):
         df_latest_price.to_excel(f"./data_historis/{dropdown}_data_historis.xlsx")
 
