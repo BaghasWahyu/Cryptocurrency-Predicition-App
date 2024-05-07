@@ -9,7 +9,7 @@ from cryptocmd import CmcScraper
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_error, mean_squared_error
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date
 
 from scrape import symbolCrypto, list_crypto, namaCrypto
 
@@ -91,7 +91,6 @@ def get_latest_price(cryptocurrency, start_predict, end_predict):
 
     latest_price = latest_price[::-1]
     latest_price = latest_price.reset_index()
-    latest_price = latest_price.reset_index()
     latest_price = latest_price.drop(columns=["index"])
 
     return latest_price
@@ -116,20 +115,7 @@ with st.sidebar:
         "Pilih Salah Satu Batch Size", batch_sizes, key="input_batch_size"
     )
     dropdown = symbolCrypto[namaCrypto.index(dropdown_index)]
-    if dropdown:
-        with st.form("first_form"):
-            start_predict = st.date_input(
-                "Tanggal Awal Prediksi",
-                value=pd.to_datetime("2024-01-01"),
-                min_value=pd.to_datetime("2024-01-01"),
-                key="input_start",
-            )
-
-            end_predict = st.date_input(
-                "Tanggal Akhir Prediksi", value=pd.to_datetime("today"), key="input_end"
-            )
-            periode = (start_predict - end_predict).days - 1
-            st.form_submit_button("Submit")
+    # if dropdown:
 
 st.subheader(
     "Berikut 5 Cryoptocurrency tertinggi berdasarkan Market Capitalization per 31 Desember 2023"
@@ -153,9 +139,7 @@ if len(dropdown) > 0:
         df_latest_price.to_excel(f"./data_historis/{dropdown}_data_historis.xlsx")
 
     df = df_latest_price
-    df = df.drop(
-        columns=["level_0", "Time Open", "Time High", "Time Low", "Time Close"], axis=1
-    )
+    df = df.drop(columns=["Time Open", "Time High", "Time Low", "Time Close"], axis=1)
 
     with open(f"./data_historis/{dropdown}_data_historis.xlsx", "rb") as file_historis:
         st.download_button(
@@ -218,10 +202,6 @@ if len(dropdown) > 0:
     start_date_test = end_date + timedelta(days=1)
     train_data = crypto_data[:end_date]
     test_data = crypto_data[start_date_test:]
-
-    # training_size = round(len(crypto_data) * 0.80)
-    # train_data = crypto_data[:training_size]
-    # test_data = crypto_data[training_size:]
 
     total_train_data, total_test_data = st.columns(2)
     with total_train_data:
@@ -691,6 +671,16 @@ if len(dropdown) > 0:
     else:
         st.warning("Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!")
 
+    with st.form("first_form"):
+        start_predict = new_data.index[-1].date()
+        today = pd.to_datetime(start_predict)
+        next_month = today + timedelta(days=30)
+        end_predict = st.date_input(
+            "Tanggal Akhir Prediksi", value=next_month, key="input_end"
+        )
+        periode = (start_predict - end_predict).days
+        st.form_submit_button("Submit")
+
     new_rows = pd.DataFrame(
         index=pd.date_range(
             start=new_data.index[-1], end=end_predict, freq="D", inclusive="right"
@@ -732,16 +722,16 @@ if len(dropdown) > 0:
 
     cols3 = upcoming_prediction.columns.tolist()
 
-    latest_price = get_latest_price(dropdown, start_predict, end_predict)
+    # latest_price = get_latest_price(dropdown, start_predict, end_predict)
 
-    diff_column_name_latest_price = latest_price.rename(
-        columns={
-            "Open": "Open_Latest",
-            "High": "High_Latest",
-            "Low": "Low_Latest",
-            "Close": "Close_Latest",
-        }
-    )
+    # diff_column_name_latest_price = latest_price.rename(
+    #     columns={
+    #         "Open": "Open_Latest",
+    #         "High": "High_Latest",
+    #         "Low": "Low_Latest",
+    #         "Close": "Close_Latest",
+    #     }
+    # )
     diff_column_name_upcoming_prediction = upcoming_prediction.rename(
         columns={
             "Open": "Open_Future",
@@ -757,18 +747,22 @@ if len(dropdown) > 0:
         key="chart_next_predict",
     )
     option3_str = str(option3)
-    option3_latest = f"{option3}_Latest"
+    # option3_latest = f"{option3}_Latest"
     option3_future = f"{option3}_Predicted"
     data_prediction = upcoming_prediction[option3]
     data_prediction = data_prediction[start_predict:]
     data_combined = pd.concat(
-        [data_prediction, diff_column_name_latest_price[option3_latest]], axis=1
+        [
+            data_prediction,
+            # diff_column_name_latest_price[option3_latest]
+        ],
+        axis=1,
     )
     data_combined = data_combined.rename(columns={f"{option3}": f"{option3_future}"})
     all_data_combined = pd.concat(
         [
             diff_column_name_upcoming_prediction[start_predict:],
-            diff_column_name_latest_price,
+            # diff_column_name_latest_price,
         ],
         axis=1,
     )
@@ -800,18 +794,18 @@ if len(dropdown) > 0:
             mime="application/vnd.ms-excel",
         )
 
-    diff_column_name_latest_price_excel = io.BytesIO()
-    with pd.ExcelWriter(
-        diff_column_name_latest_price_excel, engine="xlsxwriter"
-    ) as writer:
-        diff_column_name_latest_price.to_excel(writer)
-    with download_btn_latest:
-        st.download_button(
-            label=f"Download {dropdown_index} Latest Data",
-            data=diff_column_name_latest_price_excel,
-            file_name=f"{dropdown}_latest.xlsx",
-            mime="application/vnd.ms-excel",
-        )
+    # diff_column_name_latest_price_excel = io.BytesIO()
+    # with pd.ExcelWriter(
+    #     diff_column_name_latest_price_excel, engine="xlsxwriter"
+    # ) as writer:
+    #     diff_column_name_latest_price.to_excel(writer)
+    # with download_btn_latest:
+    #     st.download_button(
+    #         label=f"Download {dropdown_index} Latest Data",
+    #         data=diff_column_name_latest_price_excel,
+    #         file_name=f"{dropdown}_latest.xlsx",
+    #         mime="application/vnd.ms-excel",
+    #     )
 
     fig, ax = plt.subplots(figsize=(10, 7.5))
     ax.plot(
@@ -822,9 +816,9 @@ if len(dropdown) > 0:
         upcoming_prediction.loc["2024-01-01":, option3],
         label=f"Harga {option3_str} yang akan datang",
     )
-    ax.plot(
-        latest_price.loc["2024-01-01":, option3], label=f"Harga {option3_str} terbaru"
-    )
+    # ax.plot(
+    #     latest_price.loc["2024-01-01":, option3], label=f"Harga {option3_str} terbaru"
+    # )
     ax.xaxis.set_major_formatter(
         DateFormatter("%Y-%m-%d")
     )  # Menyesuaikan formatter sumbu x
