@@ -353,7 +353,7 @@ if len(dropdown) > 0:
     st.download_button(
         label=f"Download Data Harian {dropdown_index}",
         data=new_data_daily_io,
-        file_name=f"{dropdown}_daily.xlsx",
+        file_name=f"{dropdown}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_daily.xlsx",
         mime="application/vnd.ms-excel",
     )
     st.dataframe(new_data, use_container_width=True)
@@ -477,7 +477,7 @@ if len(dropdown) > 0:
     st.download_button(
         label=f"Download Data Bulanan {dropdown_index}",
         data=new_data_monthly_io,
-        file_name=f"{dropdown}_monthly.xlsx",
+        file_name=f"{dropdown}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_monthly.xlsx",
         mime="application/vnd.ms-excel",
     )
     st.dataframe(new_data_monthly, use_container_width=True)
@@ -651,6 +651,14 @@ if len(dropdown) > 0:
 
         # Memanggil fungsi untuk membuat plot
         fig_daily = plot_actual_vs_predicted(new_data, option2, dropdown_index)
+        img_daily = io.BytesIO()
+        fig_daily.savefig(img_daily, format="png")
+        btn_daily = st.download_button(
+            label="Unduh Gambar",
+            data=img_daily,
+            file_name=f"{dropdown}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_daily.png",
+            mime="image/png",
+        )
 
         # Menampilkan plot di aplikasi Streamlit
         st.pyplot(fig_daily)
@@ -664,7 +672,14 @@ if len(dropdown) > 0:
         fig_monthly = plot_actual_vs_predicted(
             new_data_monthly, option2, dropdown_index
         )
-
+        img_monthly = io.BytesIO()
+        fig_monthly.savefig(img_monthly, format="png")
+        btn_monthly = st.download_button(
+            label="Unduh Gambar",
+            data=img_monthly,
+            file_name=f"{dropdown}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_monthly.png",
+            mime="image/png",
+        )
         # Menampilkan plot di aplikasi Streamlit
         st.pyplot(fig_monthly)
 
