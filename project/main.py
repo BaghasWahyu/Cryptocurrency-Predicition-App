@@ -198,7 +198,7 @@ if len(dropdown) > 0:
     st.dataframe(crypto_data, use_container_width=True)
 
     # Pembagian Data Latih dan Data Uji
-    end_date = pd.to_datetime("2022-12-31")
+    end_date = pd.to_datetime("2023-12-31")
     start_date_test = end_date + timedelta(days=1)
     train_data = crypto_data[:end_date]
     test_data = crypto_data[start_date_test:]
