@@ -8,8 +8,9 @@ import streamlit as st
 from cryptocmd import CmcScraper
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.metrics import mean_squared_error
 from datetime import timedelta, datetime
+
 
 from scrape import symbolCrypto, list_crypto, namaCrypto
 
@@ -36,7 +37,16 @@ if "chart_crypto_2" not in st.session_state:
     st.session_state["chart_crypto_2"] = ["Volume"]
 
 if "chart_predict" not in st.session_state:
-    st.session_state["chart_predict"] = ["Open", "open_predicted"]
+    st.session_state["chart_predict"] = [
+        "Open",
+        "open_predicted",
+        "High",
+        "high_predicted",
+        "Low",
+        "low_predicted",
+        "Close",
+        "close_predicted",
+    ]
 
 if "chart_next_predict" not in st.session_state:
     st.session_state["chart_next_predict"] = "Open"
@@ -46,6 +56,27 @@ if "chart_next_predict" not in st.session_state:
 def load_trained_model(path_to_model):
     model = load_model(path_to_model)
     return model
+
+
+@st.cache_data
+def calculate_MAPE(actual, predicted):
+    MAPE = np.mean((np.abs(np.subtract(actual, predicted) / actual))) * 100
+    return MAPE
+
+
+@st.cache_data
+def calculate_RMSE(actual, predicted):
+    MSE = mean_squared_error(actual, predicted)
+    RMSE = np.sqrt(MSE)
+    RMSE_percentage = (RMSE / np.mean(actual)) * 100
+    return RMSE, RMSE_percentage
+
+
+@st.cache_data
+def margin_of_error(actual, predicted):
+    MOE = actual - predicted
+    MOE_percentage = (MOE / actual) * 100
+    return MOE, MOE_percentage
 
 
 @st.cache_data
@@ -132,7 +163,10 @@ if len(dropdown) > 0:
 
     df_latest_price = get_latest_price(dropdown, startdate, enddate)
     data_historis = pd.read_excel(
-        f"./data_historis/{dropdown}_data_historis.xlsx", index_col=0, parse_dates=True
+        f"./data_historis/{dropdown}_data_historis.xlsx",
+        index_col=0,
+        parse_dates=True,
+        engine="openpyxl",
     )
     if not df_latest_price.equals(data_historis):
         df_latest_price.to_excel(f"./data_historis/{dropdown}_data_historis.xlsx")
@@ -292,46 +326,32 @@ if len(dropdown) > 0:
     # Mengubah tipe data kolom tersebut menjadi float64
     new_data[float32_columns] = new_data[float32_columns].astype("float64")
 
-    new_data["open_margin_of_error"] = new_data["Open"] - new_data["open_predicted"]
-    # Menghitung margin of error dalam bentuk persentase untuk kolom open
-    new_data["open_margin_of_error_percent"] = (
-        (new_data["Open"] - new_data["open_predicted"]) / new_data["Open"]
-    ) * 100
+    new_data["open_margin_of_error"], new_data["open_margin_of_error_percent"] = (
+        margin_of_error(new_data["Open"], new_data["open_predicted"])
+    )
 
     # Menghitung margin of error untuk kolom high
-    new_data["high_margin_of_error"] = new_data["High"] - new_data["high_predicted"]
-    # Menghitung margin of error dalam bentuk persentase untuk kolom high
-    new_data["high_margin_of_error_percent"] = (
-        (new_data["High"] - new_data["high_predicted"]) / new_data["High"]
-    ) * 100
+    new_data["high_margin_of_error"], new_data["high_margin_of_error_percent"] = (
+        margin_of_error(new_data["High"], new_data["high_predicted"])
+    )
 
     # Menghitung margin of error untuk kolom low
-    new_data["low_margin_of_error"] = new_data["Low"] - new_data["low_predicted"]
-    # Menghitung margin of error dalam bentuk persentase untuk kolom low
-    new_data["low_margin_of_error_percent"] = (
-        (new_data["Low"] - new_data["low_predicted"]) / new_data["Low"]
-    ) * 100
+    new_data["low_margin_of_error"], new_data["low_margin_of_error_percent"] = (
+        margin_of_error(new_data["Low"], new_data["low_predicted"])
+    )
 
     # Menghitung margin of error untuk kolom close
-    new_data["close_margin_of_error"] = new_data["Close"] - new_data["close_predicted"]
-    # Menghitung margin of error dalam bentuk persentase untuk kolom close
-    new_data["close_margin_of_error_percent"] = (
-        (new_data["Close"] - new_data["close_predicted"]) / new_data["Close"]
-    ) * 100
+    new_data["close_margin_of_error"], new_data["close_margin_of_error_percent"] = (
+        margin_of_error(new_data["Close"], new_data["close_predicted"])
+    )
 
     st.subheader(f"Berikut data {dropdown_index} Terkini dan yang Teprediksi")
-    if dropdown == "USDT":
-        number = st.number_input(
-            "Masukkan angka untuk pembulatan di belakang koma",
-            value=4,
-            placeholder="Ketikan Angka....",
-        )
-    else:
-        number = st.number_input(
-            "Masukkan angka untuk pembulatan di belakang koma",
-            value=2,
-            placeholder="Ketikan Angka....",
-        )
+    number = st.number_input(
+        "Masukkan angka untuk pembulatan di belakang koma",
+        value=4 if dropdown == "USDT" else 2,
+        placeholder="Ketikan Angka....",
+    )
+
     # Pembulatan nilai pada dataframe
     new_data = new_data.round(number)
 
@@ -349,117 +369,81 @@ if len(dropdown) > 0:
     )
     st.dataframe(new_data, use_container_width=True)
 
-    mean_open_margin_of_error = np.mean(new_data["open_margin_of_error"])
-    mean_high_margin_of_error = np.mean(new_data["high_margin_of_error"])
-    mean_low_margin_of_error = np.mean(new_data["low_margin_of_error"])
-    mean_close_margin_of_error = np.mean(new_data["close_margin_of_error"])
+    MAPE_open = calculate_MAPE(new_data["Open"], new_data["open_predicted"])
+    MAPE_high = calculate_MAPE(new_data["High"], new_data["high_predicted"])
+    MAPE_low = calculate_MAPE(new_data["Low"], new_data["low_predicted"])
+    MAPE_close = calculate_MAPE(new_data["Close"], new_data["close_predicted"])
 
-    mean_open_margin_of_error_percent = np.mean(
-        new_data["open_margin_of_error_percent"]
+    RMSE_open, RMSE_open_percentage = calculate_RMSE(
+        new_data["Open"], new_data["open_predicted"]
     )
-    mean_high_margin_of_error_percent = np.mean(
-        new_data["high_margin_of_error_percent"]
+    RMSE_high, RMSE_high_percentage = calculate_RMSE(
+        new_data["High"], new_data["high_predicted"]
     )
-    mean_low_margin_of_error_percent = np.mean(new_data["low_margin_of_error_percent"])
-    mean_close_margin_of_error_percent = np.mean(
-        new_data["close_margin_of_error_percent"]
+    RMSE_low, RMSE_low_percentage = calculate_RMSE(
+        new_data["Low"], new_data["low_predicted"]
+    )
+    RMSE_close, RMSE_close_percentage = calculate_RMSE(
+        new_data["Close"], new_data["close_predicted"]
+    )
+    st.write("--------")
+    st.write(
+        f"MAPE {dropdown_index} Open : {MAPE_open:.5f}%"
+        if dropdown == "USDT"
+        else f"MAPE {dropdown_index} Open : {MAPE_open:.3f}%"
+    )
+    st.write(
+        f"MAPE {dropdown_index} High : {MAPE_high:.5f}%"
+        if dropdown == "USDT"
+        else f"MAPE {dropdown_index} High : {MAPE_high:.3f}%"
+    )
+    st.write(
+        f"MAPE {dropdown_index} Low : {MAPE_low:.5f}%"
+        if dropdown == "USDT"
+        else f"MAPE {dropdown_index} Low : {MAPE_low:.3f}%"
+    )
+    st.write(
+        f"MAPE {dropdown_index} Close : {MAPE_close:.5f}%"
+        if dropdown == "USDT"
+        else f"MAPE {dropdown_index} Close : {MAPE_close:.3f}%"
+    )
+    st.write("--------")
+
+    st.write(
+        f"RMSE Open Harian {dropdown} : {RMSE_open:.5f} atau {RMSE_open_percentage:.5}%"
+        if dropdown == "USDT"
+        else f"RMSE Open Harian {dropdown} : {RMSE_open:.3f} atau {RMSE_open_percentage:.3f}%"
+    )
+    st.write(
+        f"RMSE High Harian {dropdown} : {RMSE_high:.5f} atau {RMSE_high_percentage:.5f}%"
+        if dropdown == "USDT"
+        else f"RMSE High Harian {dropdown} : {RMSE_high:.3f} atau {RMSE_high_percentage:.3f}%"
+    )
+    st.write(
+        f"RMSE Low Harian {dropdown} : {RMSE_low:.5f} atau {RMSE_low_percentage:.5f}%"
+        if dropdown == "USDT"
+        else f"RMSE Low Harian {dropdown} : {RMSE_low:.3f} atau {RMSE_low_percentage:.3f}%"
+    )
+    st.write(
+        f"RMSE Close Harian {dropdown} : {RMSE_close:.5f} atau {RMSE_close_percentage:.5f}%"
+        if dropdown == "USDT"
+        else f"RMSE Close Harian {dropdown} : {RMSE_close:.3f} atau {RMSE_close_percentage:.3f}%"
+    )
+    st.write("--------")
+
+    RMSE_total, RMSE_total_percentage = calculate_RMSE(
+        new_data[["Open", "High", "Low", "Close"]],
+        new_data[
+            ["open_predicted", "high_predicted", "low_predicted", "close_predicted"]
+        ],
     )
 
-    if dropdown == "USDT":
-        st.write(
-            f"Rata-rata Margin of Error {dropdown_index} Open Harian : {mean_open_margin_of_error:.5f} atau {mean_open_margin_of_error_percent:.5f}%"
-        )
-        st.write(
-            f"Rata-rata Margin of Error {dropdown_index} High Harian : {mean_high_margin_of_error:.5f} atau {mean_high_margin_of_error_percent:.5f}%"
-        )
-        st.write(
-            f"Rata-rata Margin of Error {dropdown_index} Low Harian : {mean_low_margin_of_error:.5f} atau {mean_low_margin_of_error_percent:.5f}%"
-        )
-        st.write(
-            f"Rata-rata Margin of Error {dropdown_index} Close Harian : {mean_close_margin_of_error:.5f} atau {mean_close_margin_of_error_percent:.5f}%"
-        )
-        st.write("--------")
-        # RMSE Open Daily
-        MSE_open = mean_squared_error(new_data["Open"], new_data["open_predicted"])
-        RMSE_open = np.sqrt(MSE_open)
-        RMSE_open_percentage = (RMSE_open / np.mean(new_data["Open"])) * 100
-        st.write(
-            f"RMSE Open Harian {dropdown} : {RMSE_open:.5f} atau {RMSE_open_percentage:.5f}%"
-        )
-
-        # RMSE High Daily
-        MSE_high = mean_squared_error(new_data["High"], new_data["high_predicted"])
-        RMSE_high = np.sqrt(MSE_high)
-        RMSE_high_percentage = (RMSE_high / np.mean(new_data["High"])) * 100
-        st.write(
-            f"RMSE High Harian {dropdown} : {RMSE_high:.5f} atau {RMSE_high_percentage:.5f}%"
-        )
-
-        # RMSE Low Daily
-        MSE_low = mean_squared_error(new_data["Low"], new_data["low_predicted"])
-        RMSE_low = np.sqrt(MSE_low)
-        RMSE_low_percentage = (RMSE_low / np.mean(new_data["Low"])) * 100
-        st.write(
-            f"RMSE Low Harian {dropdown} : {RMSE_low:.5f} atau {RMSE_low_percentage:.5f}%"
-        )
-
-        # RMSE Close Daily
-        MSE_close = mean_squared_error(new_data["Close"], new_data["close_predicted"])
-        RMSE_close = np.sqrt(MSE_close)
-        RMSE_close_percentage = (RMSE_close / np.mean(new_data["Close"])) * 100
-        st.write(
-            f"RMSE Close Harian {dropdown} : {RMSE_close:.5f} atau {RMSE_close_percentage:.5f}%"
-        )
-        st.write("--------")
-    else:
-        st.write(
-            f"Rata-rata Margin of Error {dropdown_index} Open Harian : {mean_open_margin_of_error:.3f} atau {mean_open_margin_of_error_percent:.3f}%"
-        )
-        st.write(
-            f"Rata-rata Margin of Error {dropdown_index} High Harian : {mean_high_margin_of_error:.3f} atau {mean_high_margin_of_error_percent:.3f}%"
-        )
-        st.write(
-            f"Rata-rata Margin of Error {dropdown_index} Low Harian : {mean_low_margin_of_error:.3f} atau {mean_low_margin_of_error_percent:.3f}%"
-        )
-        st.write(
-            f"Rata-rata Margin of Error {dropdown_index} Close Harian : {mean_close_margin_of_error:.3f} atau {mean_close_margin_of_error_percent:.3f}%"
-        )
-
-        st.write("--------")
-
-        # RMSE Open Daily
-        MSE_open = mean_squared_error(new_data["Open"], new_data["open_predicted"])
-        RMSE_open = np.sqrt(MSE_open)
-        RMSE_open_percentage = (RMSE_open / np.mean(new_data["Open"])) * 100
-        st.write(
-            f"RMSE Open Harian {dropdown} : {RMSE_open:.3f} atau {RMSE_open_percentage:.3f}%"
-        )
-
-        # RMSE High Daily
-        MSE_high = mean_squared_error(new_data["High"], new_data["high_predicted"])
-        RMSE_high = np.sqrt(MSE_high)
-        RMSE_high_percentage = (RMSE_high / np.mean(new_data["High"])) * 100
-        st.write(
-            f"RMSE High Harian {dropdown} : {RMSE_high:.3f} atau {RMSE_high_percentage:.3f}%"
-        )
-
-        # RMSE Low Daily
-        MSE_low = mean_squared_error(new_data["Low"], new_data["low_predicted"])
-        RMSE_low = np.sqrt(MSE_low)
-        RMSE_low_percentage = (RMSE_low / np.mean(new_data["Low"])) * 100
-        st.write(
-            f"RMSE Low Harian {dropdown} : {RMSE_low:.3f} atau {RMSE_low_percentage:.3f}%"
-        )
-
-        # RMSE Close Daily
-        MSE_close = mean_squared_error(new_data["Close"], new_data["close_predicted"])
-        RMSE_close = np.sqrt(MSE_close)
-        RMSE_close_percentage = (RMSE_close / np.mean(new_data["Close"])) * 100
-        st.write(
-            f"RMSE Close Harian {dropdown} : {RMSE_close:.3f} atau {RMSE_close_percentage:.3f}%"
-        )
-        st.write("--------")
-
+    st.write(
+        f"RMSE Total Harian {dropdown} : {RMSE_total:.5f} atau {RMSE_total_percentage:.5f}%"
+        if dropdown == "USDT"
+        else f"RMSE Total Harian {dropdown} : {RMSE_total:.3f} atau {RMSE_total_percentage:.3f}%"
+    )
+    st.write("--------")
     option2 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart",
         cols2,
@@ -492,7 +476,8 @@ if len(dropdown) > 0:
 
     with st.form("first_form"):
         start_predict = new_data.index[-1].date()
-        today = pd.to_datetime(start_predict)
+        date = "2024-05-12"
+        today = pd.to_datetime(date)
         next_month = today + timedelta(days=30)
         end_predict = st.date_input(
             "Tanggal Akhir Prediksi", value=next_month, key="input_end"
