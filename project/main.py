@@ -334,13 +334,18 @@ if len(dropdown) > 0:
     ) * 100
 
     st.subheader(f"Berikut data {dropdown_index} Terkini dan yang Teprediksi")
-
-    number = st.number_input(
-        "Masukkan angka untuk pembulatan di belakang koma",
-        value=2,
-        placeholder="Ketika Angka....",
-    )
-
+    if dropdown == "USDT":
+        number = st.number_input(
+            "Masukkan angka untuk pembulatan di belakang koma",
+            value=4,
+            placeholder="Ketikan Angka....",
+        )
+    else:
+        number = st.number_input(
+            "Masukkan angka untuk pembulatan di belakang koma",
+            value=2,
+            placeholder="Ketikan Angka....",
+        )
     # Pembulatan nilai pada dataframe
     new_data = new_data.round(number)
 
@@ -376,16 +381,16 @@ if len(dropdown) > 0:
 
     if dropdown == "USDT":
         st.write(
-            f"Rata-rata Margin of Error {dropdown_index} Open Harian : {mean_open_margin_of_error} atau {mean_open_margin_of_error_percent}%"
+            f"Rata-rata Margin of Error {dropdown_index} Open Harian : {mean_open_margin_of_error:.5f} atau {mean_open_margin_of_error_percent:.5f}%"
         )
         st.write(
-            f"Rata-rata Margin of Error {dropdown_index} High Harian : {mean_high_margin_of_error} atau {mean_high_margin_of_error_percent}%"
+            f"Rata-rata Margin of Error {dropdown_index} High Harian : {mean_high_margin_of_error:.5f} atau {mean_high_margin_of_error_percent:.5f}%"
         )
         st.write(
-            f"Rata-rata Margin of Error {dropdown_index} Low Harian : {mean_low_margin_of_error} atau {mean_low_margin_of_error_percent}%"
+            f"Rata-rata Margin of Error {dropdown_index} Low Harian : {mean_low_margin_of_error:.5f} atau {mean_low_margin_of_error_percent:.5f}%"
         )
         st.write(
-            f"Rata-rata Margin of Error {dropdown_index} Close Harian : {mean_close_margin_of_error} atau {mean_close_margin_of_error_percent}%"
+            f"Rata-rata Margin of Error {dropdown_index} Close Harian : {mean_close_margin_of_error:.5f} atau {mean_close_margin_of_error_percent:.5f}%"
         )
         st.write("--------")
         # RMSE Open Daily
@@ -393,7 +398,7 @@ if len(dropdown) > 0:
         RMSE_open = np.sqrt(MSE_open)
         RMSE_open_percentage = (RMSE_open / np.mean(new_data["Open"])) * 100
         st.write(
-            f"RMSE Open Harian {dropdown} : {RMSE_open} atau {RMSE_open_percentage}%"
+            f"RMSE Open Harian {dropdown} : {RMSE_open:.5f} atau {RMSE_open_percentage:.5f}%"
         )
 
         # RMSE High Daily
@@ -401,21 +406,23 @@ if len(dropdown) > 0:
         RMSE_high = np.sqrt(MSE_high)
         RMSE_high_percentage = (RMSE_high / np.mean(new_data["High"])) * 100
         st.write(
-            f"RMSE High Harian {dropdown} : {RMSE_high} atau {RMSE_high_percentage}%"
+            f"RMSE High Harian {dropdown} : {RMSE_high:.5f} atau {RMSE_high_percentage:.5f}%"
         )
 
         # RMSE Low Daily
         MSE_low = mean_squared_error(new_data["Low"], new_data["low_predicted"])
         RMSE_low = np.sqrt(MSE_low)
         RMSE_low_percentage = (RMSE_low / np.mean(new_data["Low"])) * 100
-        st.write(f"RMSE Low Harian {dropdown} : {RMSE_low} atau {RMSE_low_percentage}%")
+        st.write(
+            f"RMSE Low Harian {dropdown} : {RMSE_low:.5f} atau {RMSE_low_percentage:.5f}%"
+        )
 
         # RMSE Close Daily
         MSE_close = mean_squared_error(new_data["Close"], new_data["close_predicted"])
         RMSE_close = np.sqrt(MSE_close)
         RMSE_close_percentage = (RMSE_close / np.mean(new_data["Close"])) * 100
         st.write(
-            f"RMSE Close Harian {dropdown} : {RMSE_close} atau {RMSE_close_percentage}%"
+            f"RMSE Close Harian {dropdown} : {RMSE_close:.5f} atau {RMSE_close_percentage:.5f}%"
         )
         st.write("--------")
     else:
@@ -566,15 +573,15 @@ if len(dropdown) > 0:
 
     option3_str = str(option3)
     option3_trend = f"{option3}_Trend"
-    data_prediction = upcoming_trend[option3_trend]
-    data_prediction = data_prediction[start_predict + timedelta(days=1) :]
+    data_trend = upcoming_trend[option3_trend]
+    data_trend = data_trend[start_predict + timedelta(days=1) :]
 
     st.subheader(f"Berikut Tren harga {dropdown_index} {option3_str} yang akan datang")
-    st.dataframe(data_prediction, use_container_width=True)
+    st.dataframe(data_trend, use_container_width=True)
 
     trend_data_excel = io.BytesIO()
     with pd.ExcelWriter(trend_data_excel, engine="xlsxwriter") as writer:
-        data_prediction.to_excel(writer)
+        data_trend.to_excel(writer)
         st.download_button(
             label=f"Download {dropdown_index} Trend Data",
             data=trend_data_excel,
@@ -582,7 +589,7 @@ if len(dropdown) > 0:
             mime="application/vnd.ms-excel",
         )
 
-    fig, ax = plt.subplots(figsize=(15, 7.5))
+    fig_tren, ax = plt.subplots(figsize=(15, 7.5))
     ax.plot(
         new_prediction_data.loc[:, option3],
         label=f"Harga {option3_str} Terkini",
@@ -604,4 +611,13 @@ if len(dropdown) > 0:
     )
     ax.legend()
 
-    st.pyplot(fig)
+    img_tren = io.BytesIO()
+    fig_tren.savefig(img_tren, format="png")
+    btn_tren = st.download_button(
+        label="Unduh Gambar",
+        data=img_tren,
+        file_name=f"{dropdown}_{option3_str}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_trend.png",
+        mime="image/png",
+    )
+
+    st.pyplot(fig_tren)
