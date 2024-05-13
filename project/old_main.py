@@ -9,7 +9,7 @@ from cryptocmd import CmcScraper
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_error, mean_squared_error
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date
 
 from scrape import symbolCrypto, list_crypto, namaCrypto
 
@@ -115,9 +115,10 @@ with st.sidebar:
         "Pilih Salah Satu Batch Size", batch_sizes, key="input_batch_size"
     )
     dropdown = symbolCrypto[namaCrypto.index(dropdown_index)]
+    # if dropdown:
 
 st.subheader(
-    "Berikut 5 Cryoptocurrency tertinggi berdasarkan Market Capitalization per 31 Desember 2023 menurut situs web coinmarketcap.com"
+    "Berikut 5 Cryoptocurrency tertinggi berdasarkan Market Capitalization per 31 Desember 2023"
 )
 st.dataframe(list_crypto, use_container_width=True)
 
@@ -277,7 +278,6 @@ if len(dropdown) > 0:
         )
         * 100
     )
-
     test_inverse_predicted_shape_negative = -(test_inverse_predicted.shape[0])
 
     new_data = pd.concat(
@@ -467,6 +467,176 @@ if len(dropdown) > 0:
         )
         st.write("--------")
 
+    # new_data_monthly = new_data.resample("1ME").mean()
+    # new_data_monthly = new_data_monthly.round(number)
+    # st.text("Bulanan")
+
+    # new_data_monthly_io = io.BytesIO()
+    # with pd.ExcelWriter(new_data_monthly_io, engine="xlsxwriter") as writer:
+    #     new_data_monthly.to_excel(writer)
+    # st.download_button(
+    #     label=f"Download Data Bulanan {dropdown_index}",
+    #     data=new_data_monthly_io,
+    #     file_name=f"{dropdown}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_monthly.xlsx",
+    #     mime="application/vnd.ms-excel",
+    # )
+    # st.dataframe(new_data_monthly, use_container_width=True)
+
+    # mean_open_monthly_margin_of_error = np.mean(
+    #     new_data_monthly["open_margin_of_error"]
+    # )
+
+    # mean_high_monthly_margin_of_error = np.mean(
+    #     new_data_monthly["high_margin_of_error"]
+    # )
+
+    # mean_low_monthly_margin_of_error = np.mean(new_data_monthly["low_margin_of_error"])
+
+    # mean_close_monthly_margin_of_error = np.mean(
+    #     new_data_monthly["close_margin_of_error"]
+    # )
+
+    # mean_open_monthly_margin_of_error_percent = np.mean(
+    #     new_data_monthly["open_margin_of_error_percent"]
+    # )
+    # mean_high_monthly_margin_of_error_percent = np.mean(
+    #     new_data_monthly["high_margin_of_error_percent"]
+    # )
+    # mean_low_monthly_margin_of_error_percent = np.mean(
+    #     new_data_monthly["low_margin_of_error_percent"]
+    # )
+    # mean_close_monthly_margin_of_error_percent = np.mean(
+    #     new_data_monthly["close_margin_of_error_percent"]
+    # )
+    # if dropdown == "USDT":
+    #     st.write(
+    #         f"Rata-rata Margin of Error {dropdown_index} Open Bulanan : {mean_open_monthly_margin_of_error} atau {mean_open_monthly_margin_of_error_percent}%"
+    #     )
+    #     st.write(
+    #         f"Rata-rata Margin of Error {dropdown_index} High Bulanan : {mean_high_monthly_margin_of_error} atau {mean_high_monthly_margin_of_error_percent}%"
+    #     )
+    #     st.write(
+    #         f"Rata-rata Margin of Error {dropdown_index} Low Bulanan : {mean_low_monthly_margin_of_error} atau {mean_low_monthly_margin_of_error_percent}%"
+    #     )
+    #     st.write(
+    #         f"Rata-rata Margin of Error {dropdown_index} Close Bulanan : {mean_close_monthly_margin_of_error} atau {mean_close_monthly_margin_of_error_percent}%"
+    #     )
+
+    #     st.write("--------")
+
+    #     # RMSE Open Monthly
+    #     MSE_open_monthly = mean_squared_error(
+    #         new_data_monthly["Open"], new_data_monthly["open_predicted"]
+    #     )
+    #     RMSE_open_monthly = np.sqrt(MSE_open_monthly)
+    #     RMSE_open_percentage_monthly = (
+    #         RMSE_open_monthly / np.mean(new_data_monthly["Open"])
+    #     ) * 100
+    #     st.write(
+    #         f"RMSE Open Bulanan {dropdown} : {RMSE_open_monthly} atau {RMSE_open_percentage_monthly}%"
+    #     )
+
+    #     # RMSE High Monthly
+    #     MSE_high_monthly = mean_squared_error(
+    #         new_data_monthly["High"], new_data_monthly["high_predicted"]
+    #     )
+    #     RMSE_high_monthly = np.sqrt(MSE_high_monthly)
+    #     RMSE_high_percentage_monthly = (
+    #         RMSE_high_monthly / np.mean(new_data_monthly["High"])
+    #     ) * 100
+    #     st.write(
+    #         f"RMSE High Bulanan {dropdown} : {RMSE_high_monthly} atau {RMSE_high_percentage_monthly}%"
+    #     )
+
+    #     # RMSE Low Monthly
+    #     MSE_low_monthly = mean_squared_error(
+    #         new_data_monthly["Low"], new_data_monthly["low_predicted"]
+    #     )
+    #     RMSE_low_monthly = np.sqrt(MSE_low_monthly)
+    #     RMSE_low_percentage_monthly = (
+    #         RMSE_low_monthly / np.mean(new_data_monthly["Low"])
+    #     ) * 100
+    #     st.write(
+    #         f"RMSE Low Bulanan {dropdown} : {RMSE_low_monthly} atau {RMSE_low_percentage_monthly}%"
+    #     )
+    #     # RMSE Close Monthly
+    #     MSE_close_monthly = mean_squared_error(
+    #         new_data_monthly["Close"], new_data_monthly["close_predicted"]
+    #     )
+    #     RMSE_close_monthly = np.sqrt(MSE_close_monthly)
+    #     RMSE_close_percentage_monthly = (
+    #         RMSE_close_monthly / np.mean(new_data_monthly["Close"])
+    #     ) * 100
+    #     st.write(
+    #         f"RMSE Close Bulanan {dropdown} : {RMSE_close_monthly} atau {RMSE_close_percentage_monthly}%"
+    #     )
+    #     st.write("--------")
+
+    # else:
+    #     st.write(
+    #         f"Rata-rata Margin of Error {dropdown_index} Open Bulanan : {mean_open_monthly_margin_of_error:.3f} atau {mean_open_monthly_margin_of_error_percent:.3f}%"
+    #     )
+    #     st.write(
+    #         f"Rata-rata Margin of Error {dropdown_index} High Bulanan : {mean_high_monthly_margin_of_error:.3f} atau {mean_high_monthly_margin_of_error_percent:.3f}%"
+    #     )
+    #     st.write(
+    #         f"Rata-rata Margin of Error {dropdown_index} Low Bulanan : {mean_low_monthly_margin_of_error:.3f} atau {mean_low_monthly_margin_of_error_percent:.3f}%"
+    #     )
+    #     st.write(
+    #         f"Rata-rata Margin of Error {dropdown_index} Close Bulanan : {mean_close_monthly_margin_of_error:.3f} atau {mean_close_monthly_margin_of_error_percent:.3f}%"
+    #     )
+
+    #     st.write("--------")
+
+    #     # RMSE Open Monthly
+    #     MSE_open_monthly = mean_squared_error(
+    #         new_data_monthly["Open"], new_data_monthly["open_predicted"]
+    #     )
+    #     RMSE_open_monthly = np.sqrt(MSE_open_monthly)
+    #     RMSE_open_percentage_monthly = (
+    #         RMSE_open_monthly / np.mean(new_data_monthly["Open"])
+    #     ) * 100
+    #     st.write(
+    #         f"RMSE Open Bulanan {dropdown} : {RMSE_open_monthly:.3f} atau {RMSE_open_percentage_monthly:.3f}%"
+    #     )
+
+    #     # RMSE High Monthly
+    #     MSE_high_monthly = mean_squared_error(
+    #         new_data_monthly["High"], new_data_monthly["high_predicted"]
+    #     )
+    #     RMSE_high_monthly = np.sqrt(MSE_high_monthly)
+    #     RMSE_high_percentage_monthly = (
+    #         RMSE_high_monthly / np.mean(new_data_monthly["High"])
+    #     ) * 100
+    #     st.write(
+    #         f"RMSE High Bulanan {dropdown} : {RMSE_high_monthly:.3f} atau {RMSE_high_percentage_monthly:.3f}%"
+    #     )
+
+    #     # RMSE Low Monthly
+    #     MSE_low_monthly = mean_squared_error(
+    #         new_data_monthly["Low"], new_data_monthly["low_predicted"]
+    #     )
+    #     RMSE_low_monthly = np.sqrt(MSE_low_monthly)
+    #     RMSE_low_percentage_monthly = (
+    #         RMSE_low_monthly / np.mean(new_data_monthly["Low"])
+    #     ) * 100
+    #     st.write(
+    #         f"RMSE Low Bulanan {dropdown} : {RMSE_low_monthly:.3f} atau {RMSE_low_percentage_monthly:.3f}%"
+    #     )
+    #     # RMSE Close Monthly
+    #     MSE_close_monthly = mean_squared_error(
+    #         new_data_monthly["Close"], new_data_monthly["close_predicted"]
+    #     )
+    #     RMSE_close_monthly = np.sqrt(MSE_close_monthly)
+    #     RMSE_close_percentage_monthly = (
+    #         RMSE_close_monthly / np.mean(new_data_monthly["Close"])
+    #     ) * 100
+    #     st.write(
+    #         f"RMSE Close Bulanan {dropdown} : {RMSE_close_monthly:.3f} atau {RMSE_close_percentage_monthly:.3f}%"
+    #     )
+
+    #     st.write("--------")
+
     option2 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart",
         cols2,
@@ -493,6 +663,25 @@ if len(dropdown) > 0:
         # Menampilkan plot di aplikasi Streamlit
         st.pyplot(fig_daily)
         st.write("--------")
+
+        # st.subheader("Grafik Bulanan")
+        # data_monthly = new_data_monthly[option2]
+        # st.line_chart(data_monthly, y=option2)
+
+        # # Memanggil fungsi untuk membuat plot
+        # fig_monthly = plot_actual_vs_predicted(
+        #     new_data_monthly, option2, dropdown_index
+        # )
+        # img_monthly = io.BytesIO()
+        # fig_monthly.savefig(img_monthly, format="png")
+        # btn_monthly = st.download_button(
+        #     label="Unduh Gambar",
+        #     data=img_monthly,
+        #     file_name=f"{dropdown}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_monthly.png",
+        #     mime="image/png",
+        # )
+        # # Menampilkan plot di aplikasi Streamlit
+        # st.pyplot(fig_monthly)
 
     else:
         st.warning("Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!")
@@ -529,27 +718,36 @@ if len(dropdown) > 0:
         ],
         axis=0,
     )
-    upcoming_trend = pd.DataFrame(
+    upcoming_prediction = pd.DataFrame(
         columns=["Open", "High", "Low", "Close"], index=new_prediction_data.index
     )
-
-    upcoming_trend.index = pd.to_datetime(upcoming_trend.index)
+    upcoming_prediction.index = pd.to_datetime(upcoming_prediction.index)
 
     current_seq = test_seq[-1:]
 
     for i in range(periode, 0):
-        trend_prediction = loaded_model.predict(current_seq)
-        upcoming_trend.iloc[i] = trend_prediction
-        current_seq = np.append(current_seq[0][1:], trend_prediction, axis=0)
+        up_pred = loaded_model.predict(current_seq)
+        upcoming_prediction.iloc[i] = up_pred
+        current_seq = np.append(current_seq[0][1:], up_pred, axis=0)
         current_seq = current_seq.reshape(test_seq[-1:].shape)
 
-    upcoming_trend[["Open", "High", "Low", "Close"]] = MMS.inverse_transform(
-        upcoming_trend[["Open", "High", "Low", "Close"]]
+    upcoming_prediction[["Open", "High", "Low", "Close"]] = MMS.inverse_transform(
+        upcoming_prediction[["Open", "High", "Low", "Close"]]
     )
 
-    cols3 = upcoming_trend.columns.tolist()
+    cols3 = upcoming_prediction.columns.tolist()
 
-    upcoming_trend = upcoming_trend.rename(
+    # latest_price = get_latest_price(dropdown, start_predict, end_predict)
+
+    # diff_column_name_latest_price = latest_price.rename(
+    #     columns={
+    #         "Open": "Open_Latest",
+    #         "High": "High_Latest",
+    #         "Low": "Low_Latest",
+    #         "Close": "Close_Latest",
+    #     }
+    # )
+    diff_column_name_upcoming_prediction = upcoming_prediction.rename(
         columns={
             "Open": "Open_Trend",
             "High": "High_Trend",
@@ -563,34 +761,79 @@ if len(dropdown) > 0:
         cols3,
         key="chart_next_predict",
     )
-
     option3_str = str(option3)
+    # option3_latest = f"{option3}_Latest"
     option3_trend = f"{option3}_Trend"
-    data_prediction = upcoming_trend[option3_trend]
-    data_prediction = data_prediction[start_predict + timedelta(days=1) :]
+    data_prediction = upcoming_prediction[option3]
+    data_prediction = data_prediction[start_predict:]
+    data_combined = pd.concat(
+        [
+            data_prediction,
+            # diff_column_name_latest_price[option3_latest]
+        ],
+        axis=1,
+    )
+    data_combined = data_combined.rename(columns={f"{option3}": f"{option3_trend}"})
+    all_data_combined = pd.concat(
+        [
+            diff_column_name_upcoming_prediction[start_predict:],
+            # diff_column_name_latest_price,
+        ],
+        axis=1,
+    )
 
     st.subheader(f"Berikut Tren harga {dropdown_index} {option3_str} yang akan datang")
-    st.dataframe(data_prediction, use_container_width=True)
+    st.dataframe(data_combined, use_container_width=True)
 
-    trend_data_excel = io.BytesIO()
-    with pd.ExcelWriter(trend_data_excel, engine="xlsxwriter") as writer:
-        data_prediction.to_excel(writer)
+    download_btn_all, download_btn_pred, download_btn_latest = st.columns(3)
+
+    all_data_excel = io.BytesIO()
+    with pd.ExcelWriter(all_data_excel, engine="xlsxwriter") as writer:
+        all_data_combined.to_excel(writer)
+    with download_btn_all:
         st.download_button(
-            label=f"Download {dropdown_index} Trend Data",
-            data=trend_data_excel,
-            file_name=f"{dropdown}_trend.xlsx",
+            label=f"Download {dropdown_index} All Data",
+            data=all_data_excel,
+            file_name=f"{dropdown}_all.xlsx",
             mime="application/vnd.ms-excel",
         )
 
-    fig, ax = plt.subplots(figsize=(15, 7.5))
+    prediction_data_excel = io.BytesIO()
+    with pd.ExcelWriter(prediction_data_excel, engine="xlsxwriter") as writer:
+        upcoming_prediction[start_predict:].to_excel(writer)
+    with download_btn_pred:
+        st.download_button(
+            label=f"Download {dropdown_index} Prediction Data",
+            data=prediction_data_excel,
+            file_name=f"{dropdown}_prediction.xlsx",
+            mime="application/vnd.ms-excel",
+        )
+
+    # diff_column_name_latest_price_excel = io.BytesIO()
+    # with pd.ExcelWriter(
+    #     diff_column_name_latest_price_excel, engine="xlsxwriter"
+    # ) as writer:
+    #     diff_column_name_latest_price.to_excel(writer)
+    # with download_btn_latest:
+    #     st.download_button(
+    #         label=f"Download {dropdown_index} Latest Data",
+    #         data=diff_column_name_latest_price_excel,
+    #         file_name=f"{dropdown}_latest.xlsx",
+    #         mime="application/vnd.ms-excel",
+    #     )
+
+    fig, ax = plt.subplots(figsize=(10, 7.5))
     ax.plot(
-        new_prediction_data.loc[:, option3],
+        new_prediction_data.loc["2023-01-01":, option3],
         label=f"Harga {option3_str} Terkini",
     )
     ax.plot(
-        upcoming_trend.loc[:, option3_trend],
+        upcoming_prediction.loc["2024-01-01":, option3],
         label=f"Tren harga {option3_str} yang akan datang",
     )
+    # ax.plot(
+    #     latest_price.loc["2024-01-01":, option3], label=f"Harga {option3_str} terbaru"
+    # )
     ax.xaxis.set_major_formatter(
         DateFormatter("%Y-%m-%d")
     )  # Menyesuaikan formatter sumbu x
