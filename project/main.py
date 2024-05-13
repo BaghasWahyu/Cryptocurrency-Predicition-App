@@ -693,7 +693,7 @@ if len(dropdown) > 0:
         end_predict = st.date_input(
             "Tanggal Akhir Prediksi", value=next_month, key="input_end"
         )
-        periode = (start_predict - end_predict).days()
+        periode = (start_predict - end_predict).days
         st.form_submit_button("Submit")
 
     new_rows = pd.DataFrame(
