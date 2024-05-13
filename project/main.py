@@ -264,20 +264,6 @@ if len(dropdown) > 0:
     st.write(f"Test label shape {test_label.shape}")
     st.write(f"Test predicted shape {test_predicted.shape}")
 
-    MAE = mean_absolute_error(test_inverse_label, test_inverse_predicted)
-
-    MAPE = (
-        np.mean(
-            (
-                np.abs(
-                    np.subtract(test_inverse_label, test_inverse_predicted)
-                    / test_inverse_label
-                )
-            )
-        )
-        * 100
-    )
-
     test_inverse_predicted_shape_negative = -(test_inverse_predicted.shape[0])
 
     new_data = pd.concat(
@@ -523,19 +509,12 @@ if len(dropdown) > 0:
 
     new_prediction_data = pd.concat(
         [
-            new_data.drop(
-                columns=[
-                    "open_predicted",
-                    "high_predicted",
-                    "low_predicted",
-                    "close_predicted",
-                ],
-                axis=0,
-            ),
+            new_data[["Open", "High", "Low", "Close"]],
             new_rows,
         ],
         axis=0,
     )
+    st.write(new_prediction_data)
     upcoming_trend = pd.DataFrame(
         columns=["Open", "High", "Low", "Close"], index=new_prediction_data.index
     )
