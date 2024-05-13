@@ -514,7 +514,7 @@ if len(dropdown) > 0:
         ],
         axis=0,
     )
-    st.write(new_prediction_data)
+
     upcoming_trend = pd.DataFrame(
         columns=["Open", "High", "Low", "Close"], index=new_prediction_data.index
     )
@@ -556,7 +556,6 @@ if len(dropdown) > 0:
     data_trend = data_trend[start_predict + timedelta(days=1) :]
 
     st.subheader(f"Berikut Tren harga {dropdown_index} {option3_str} yang akan datang")
-    st.dataframe(data_trend, use_container_width=True)
 
     trend_data_excel = io.BytesIO()
     with pd.ExcelWriter(trend_data_excel, engine="xlsxwriter") as writer:
@@ -567,6 +566,8 @@ if len(dropdown) > 0:
             file_name=f"{dropdown}_trend.xlsx",
             mime="application/vnd.ms-excel",
         )
+
+    st.dataframe(data_trend, use_container_width=True)
 
     fig_tren, ax = plt.subplots(figsize=(15, 7.5))
     ax.plot(
