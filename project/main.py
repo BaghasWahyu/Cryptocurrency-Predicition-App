@@ -18,26 +18,15 @@ st.title("Aplikasi Prediksi Harga Cryptocurrencies")
 
 MMS = MinMaxScaler(feature_range=(0, 1))
 
-if "input_crypto" not in st.session_state:
-    st.session_state["input_crypto"] = "Bitcoin"
-
-if "input_epoch" not in st.session_state:
-    st.session_state["input_epoch"] = 25
-
-if "input_neuron" not in st.session_state:
-    st.session_state["input_neuron"] = 50
-
-if "input_batch_size" not in st.session_state:
-    st.session_state["input_batch_size"] = 16
-
-if "chart_crypto_1" not in st.session_state:
-    st.session_state["chart_crypto_1"] = ["Open"]
-
-if "chart_crypto_2" not in st.session_state:
-    st.session_state["chart_crypto_2"] = ["Volume"]
-
-if "chart_predict" not in st.session_state:
-    st.session_state["chart_predict"] = [
+# Set nilai kondisi default session
+defaults = {
+    "input_crypto": "Bitcoin",
+    "input_epoch": 25,
+    "input_neuron": 50,
+    "input_batch_size": 16,
+    "chart_crypto_1": ["Open"],
+    "chart_crypto_2": ["Volume"],
+    "chart_predict": [
         "Open",
         "open_predicted",
         "High",
@@ -46,10 +35,12 @@ if "chart_predict" not in st.session_state:
         "low_predicted",
         "Close",
         "close_predicted",
-    ]
+    ],
+}
 
-if "chart_next_predict" not in st.session_state:
-    st.session_state["chart_next_predict"] = "Open"
+for key, value in defaults.items():
+    if key not in st.session_state:
+        st.session_state[key] = value
 
 
 @st.cache_resource
@@ -81,15 +72,10 @@ def margin_of_error(actual, predicted):
 
 @st.cache_data
 def create_sequence(dataset):
-    sequences = []
-    labels = []
-
-    start_idx = 0
-    for stop_idx in range(5, len(dataset)):
-        sequences.append(dataset.iloc[start_idx:stop_idx])
-        labels.append(dataset.iloc[stop_idx])
-        start_idx += 1
-
+    sequences, labels = [], []
+    for start_idx in range(len(dataset) - 5):
+        sequences.append(dataset.iloc[start_idx : start_idx + 5])
+        labels.append(dataset.iloc[start_idx + 5])
     return np.array(sequences), np.array(labels)
 
 
@@ -108,42 +94,28 @@ def plot_actual_vs_predicted(dataframe, opsi, crypto_name):
 
 @st.cache_data
 def get_latest_price(cryptocurrency, start_predict, end_predict):
-    latest_date_start = start_predict.strftime("%d-%m-%Y")
-
-    latest_date_end = end_predict.strftime("%d-%m-%Y")
-
-    latest_scraper = CmcScraper(cryptocurrency, latest_date_start, latest_date_end)
-    latest_price = latest_scraper.get_dataframe()
-
-    latest_price["Open"] = latest_price["Open"].apply(lambda x: round(x, 2))
-    latest_price["High"] = latest_price["High"].apply(lambda x: round(x, 2))
-    latest_price["Low"] = latest_price["Low"].apply(lambda x: round(x, 2))
-    latest_price["Close"] = latest_price["Close"].apply(lambda x: round(x, 2))
-
-    latest_price = latest_price[::-1]
-    latest_price = latest_price.reset_index()
-    latest_price = latest_price.drop(columns=["index"])
-
-    return latest_price
+    scraper = CmcScraper(
+        cryptocurrency,
+        start_predict.strftime("%d-%m-%Y"),
+        end_predict.strftime("%d-%m-%Y"),
+    )
+    data = scraper.get_dataframe()
+    data[["Open", "High", "Low", "Close"]] = data[
+        ["Open", "High", "Low", "Close"]
+    ].round(2)
+    return data[::-1].reset_index(drop=True)
 
 
 with st.sidebar:
     dropdown_index = st.selectbox(
         "Pilih Salah Satu Cryptocurrency", namaCrypto, key="input_crypto"
     )
-
-    epochs_list = [25, 50]
-    neurons_list = [50, 100]
-    batch_sizes = [16, 32]
-
-    epoch_option = st.selectbox(
-        "Pilih Salah Satu Epoch", epochs_list, key="input_epoch"
-    )
+    epoch_option = st.selectbox("Pilih Salah Satu Epoch", [25, 50], key="input_epoch")
     neurons_option = st.selectbox(
-        "Pilih Salah Satu Neurons", neurons_list, key="input_neuron"
+        "Pilih Salah Satu Neurons", [50, 100], key="input_neuron"
     )
     batch_size_option = st.selectbox(
-        "Pilih Salah Satu Batch Size", batch_sizes, key="input_batch_size"
+        "Pilih Salah Satu Batch Size", [16, 32], key="input_batch_size"
     )
     dropdown = symbolCrypto[namaCrypto.index(dropdown_index)]
 
@@ -155,11 +127,8 @@ st.dataframe(list_crypto, use_container_width=True)
 if len(dropdown) > 0:
     st.subheader(f"Berikut data historis {dropdown_index}")
 
-    startdate = "2019-01-01"
-    startdate = datetime.strptime(startdate, "%Y-%m-%d").date()
-
-    enddate = datetime.now()
-    enddate = enddate.date()
+    startdate = datetime(2019, 1, 1).date()
+    enddate = datetime(2024, 5, 12).date()
 
     df_latest_price = get_latest_price(dropdown, startdate, enddate)
     data_historis = pd.read_excel(
@@ -182,10 +151,11 @@ if len(dropdown) > 0:
             mime="application/vnd.ms-excel",
         )
 
-    cols1 = df.columns.tolist()
-    cols1.remove("Date")
-    cols1.remove("Volume")
-    cols1.remove("Market Cap")
+    cols1 = [
+        col
+        for col in df.columns.tolist()
+        if col not in ["Date", "Volume", "Market Cap"]
+    ]
 
     st.dataframe(df, use_container_width=True)
     option1 = st.multiselect(
@@ -197,14 +167,11 @@ if len(dropdown) > 0:
     if option1:
         data1 = df[option1 + ["Date"]]
         st.line_chart(data1, x="Date", y=option1)
-
-        cols1_5 = df.columns.tolist()
-
-        cols1_5.remove("Date")
-        cols1_5.remove("Open")
-        cols1_5.remove("High")
-        cols1_5.remove("Low")
-        cols1_5.remove("Close")
+        cols1_5 = [
+            col
+            for col in df.columns.tolist()
+            if col not in ["Date", "Open", "High", "Low", "Close"]
+        ]
 
     else:
         st.warning("Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!")
@@ -216,15 +183,13 @@ if len(dropdown) > 0:
         key="chart_crypto_2",
     )
     if option1_5:
-        data1_5 = df[option1_5 + ["Date"]]
-        st.line_chart(data1_5, x="Date", y=option1_5)
+        st.line_chart(df[["Date"] + option1_5].set_index("Date"))
+
     else:
         st.warning("Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!")
 
-    crypto_data = df[["Date", "Open", "High", "Low", "Close"]]
-    crypto_data["Date"] = pd.to_datetime(crypto_data["Date"])
-    crypto_data.set_index("Date", drop=True, inplace=True)
-    crypto_data_real = crypto_data.copy()
+    crypto_data = df.set_index("Date").copy()
+    crypto_data = crypto_data.drop(columns=["Market Cap", "Volume"])
     crypto_data[crypto_data.columns] = MMS.fit_transform(crypto_data)
 
     st.write("Data Historis setelah dilakukan proses Min-Max Scaling")
@@ -290,19 +255,18 @@ if len(dropdown) > 0:
                 st.write(layer_bias)
                 st.write("--------")
 
-    test_predicted = loaded_model.predict(test_seq)
-    test_inverse_predicted = MMS.inverse_transform(test_predicted)
-    test_inverse_label = MMS.inverse_transform(test_label)
+    with st.expander("Shape"):
+        test_predicted = loaded_model.predict(test_seq)
+        test_inverse_predicted = MMS.inverse_transform(test_predicted)
+        test_inverse_label = MMS.inverse_transform(test_label)
 
     st.write(f"Test sequence shape {test_seq.shape}")
     st.write(f"Test label shape {test_label.shape}")
     st.write(f"Test predicted shape {test_predicted.shape}")
 
-    test_inverse_predicted_shape_negative = -(test_inverse_predicted.shape[0])
-
     new_data = pd.concat(
         [
-            crypto_data.iloc[test_inverse_predicted_shape_negative:].copy(),
+            crypto_data.iloc[-test_inverse_predicted.shape[0] :].copy(),
             pd.DataFrame(
                 test_inverse_predicted,
                 columns=[
@@ -311,7 +275,7 @@ if len(dropdown) > 0:
                     "low_predicted",
                     "close_predicted",
                 ],
-                index=crypto_data.iloc[test_inverse_predicted_shape_negative:].index,
+                index=crypto_data.iloc[-test_inverse_predicted.shape[0] :].index,
             ),
         ],
         axis=1,
@@ -326,24 +290,11 @@ if len(dropdown) > 0:
     # Mengubah tipe data kolom tersebut menjadi float64
     new_data[float32_columns] = new_data[float32_columns].astype("float64")
 
-    new_data["open_margin_of_error"], new_data["open_margin_of_error_percent"] = (
-        margin_of_error(new_data["Open"], new_data["open_predicted"])
-    )
-
-    # Menghitung margin of error untuk kolom high
-    new_data["high_margin_of_error"], new_data["high_margin_of_error_percent"] = (
-        margin_of_error(new_data["High"], new_data["high_predicted"])
-    )
-
-    # Menghitung margin of error untuk kolom low
-    new_data["low_margin_of_error"], new_data["low_margin_of_error_percent"] = (
-        margin_of_error(new_data["Low"], new_data["low_predicted"])
-    )
-
-    # Menghitung margin of error untuk kolom close
-    new_data["close_margin_of_error"], new_data["close_margin_of_error_percent"] = (
-        margin_of_error(new_data["Close"], new_data["close_predicted"])
-    )
+    for col in ["open", "high", "low", "close"]:
+        (
+            new_data[f"{col}_margin_of_error"],
+            new_data[f"{col}_margin_of_error_percent"],
+        ) = margin_of_error(new_data[col.capitalize()], new_data[f"{col}_predicted"])
 
     st.subheader(f"Berikut data {dropdown_index} Terkini dan yang Teprediksi")
     number = st.number_input(
@@ -354,8 +305,6 @@ if len(dropdown) > 0:
 
     # Pembulatan nilai pada dataframe
     new_data = new_data.round(number)
-
-    cols2 = new_data.columns.tolist()
 
     st.text("Harian")
     new_data_daily_io = io.BytesIO()
@@ -369,93 +318,46 @@ if len(dropdown) > 0:
     )
     st.dataframe(new_data, use_container_width=True)
 
-    MAPE_open = calculate_MAPE(new_data["Open"], new_data["open_predicted"])
-    MAPE_high = calculate_MAPE(new_data["High"], new_data["high_predicted"])
-    MAPE_low = calculate_MAPE(new_data["Low"], new_data["low_predicted"])
-    MAPE_close = calculate_MAPE(new_data["Close"], new_data["close_predicted"])
-
-    RMSE_open, RMSE_open_percentage = calculate_RMSE(
-        new_data["Open"], new_data["open_predicted"]
-    )
-    RMSE_high, RMSE_high_percentage = calculate_RMSE(
-        new_data["High"], new_data["high_predicted"]
-    )
-    RMSE_low, RMSE_low_percentage = calculate_RMSE(
-        new_data["Low"], new_data["low_predicted"]
-    )
-    RMSE_close, RMSE_close_percentage = calculate_RMSE(
-        new_data["Close"], new_data["close_predicted"]
-    )
+    mape_rmse_cols = ["Open", "High", "Low", "Close"]
+    for col in mape_rmse_cols:
+        st.write("--------")
+        if dropdown == "USDT":
+            st.write(
+                f"MAPE {col}: {calculate_MAPE(new_data[col], new_data[f'{col.lower()}_predicted']):.5f}%"
+            )
+            st.write(
+                f"RMSE {col}: {calculate_RMSE(new_data[col], new_data[f'{col.lower()}_predicted'])[0]:.5f} atau {calculate_RMSE(new_data[col], new_data[f'{col.lower()}_predicted'])[1]:.5f}%"
+            )
+        else:
+            st.write(
+                f"MAPE {col}: {calculate_MAPE(new_data[col], new_data[f'{col.lower()}_predicted']):.3f}%"
+            )
+            st.write(
+                f"RMSE {col}: {calculate_RMSE(new_data[col], new_data[f'{col.lower()}_predicted'])[0]:.3f} atau {calculate_RMSE(new_data[col], new_data[f'{col.lower()}_predicted'])[1]:.3f}%"
+            )
     st.write("--------")
-    st.write(
-        f"MAPE {dropdown_index} Open : {MAPE_open:.5f}%"
-        if dropdown == "USDT"
-        else f"MAPE {dropdown_index} Open : {MAPE_open:.3f}%"
-    )
-    st.write(
-        f"MAPE {dropdown_index} High : {MAPE_high:.5f}%"
-        if dropdown == "USDT"
-        else f"MAPE {dropdown_index} High : {MAPE_high:.3f}%"
-    )
-    st.write(
-        f"MAPE {dropdown_index} Low : {MAPE_low:.5f}%"
-        if dropdown == "USDT"
-        else f"MAPE {dropdown_index} Low : {MAPE_low:.3f}%"
-    )
-    st.write(
-        f"MAPE {dropdown_index} Close : {MAPE_close:.5f}%"
-        if dropdown == "USDT"
-        else f"MAPE {dropdown_index} Close : {MAPE_close:.3f}%"
-    )
-    st.write("--------")
-
-    st.write(
-        f"RMSE Open Harian {dropdown} : {RMSE_open:.5f} atau {RMSE_open_percentage:.5}%"
-        if dropdown == "USDT"
-        else f"RMSE Open Harian {dropdown} : {RMSE_open:.3f} atau {RMSE_open_percentage:.3f}%"
-    )
-    st.write(
-        f"RMSE High Harian {dropdown} : {RMSE_high:.5f} atau {RMSE_high_percentage:.5f}%"
-        if dropdown == "USDT"
-        else f"RMSE High Harian {dropdown} : {RMSE_high:.3f} atau {RMSE_high_percentage:.3f}%"
-    )
-    st.write(
-        f"RMSE Low Harian {dropdown} : {RMSE_low:.5f} atau {RMSE_low_percentage:.5f}%"
-        if dropdown == "USDT"
-        else f"RMSE Low Harian {dropdown} : {RMSE_low:.3f} atau {RMSE_low_percentage:.3f}%"
-    )
-    st.write(
-        f"RMSE Close Harian {dropdown} : {RMSE_close:.5f} atau {RMSE_close_percentage:.5f}%"
-        if dropdown == "USDT"
-        else f"RMSE Close Harian {dropdown} : {RMSE_close:.3f} atau {RMSE_close_percentage:.3f}%"
-    )
-    st.write("--------")
-
     RMSE_total, RMSE_total_percentage = calculate_RMSE(
         new_data[["Open", "High", "Low", "Close"]],
         new_data[
             ["open_predicted", "high_predicted", "low_predicted", "close_predicted"]
         ],
     )
-
     st.write(
         f"RMSE Total Harian {dropdown} : {RMSE_total:.5f} atau {RMSE_total_percentage:.5f}%"
         if dropdown == "USDT"
-        else f"RMSE Total Harian {dropdown} : {RMSE_total:.3f} atau {RMSE_total_percentage:.3f}%"
+        else f"RMSE Total {dropdown} : {RMSE_total:.3f} atau {RMSE_total_percentage:.3f}%"
     )
     st.write("--------")
     option2 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart",
-        cols2,
+        new_data.columns.tolist(),
         default=["Open", "open_predicted"],
         key="chart_predict",
     )
 
     if option2:
         st.subheader("Grafik Harian")
-        data_daily = new_data[option2]
-        st.line_chart(data_daily, y=option2)
-
+        st.line_chart(new_data[option2], y=option2)
         # Memanggil fungsi untuk membuat plot
         fig_daily = plot_actual_vs_predicted(new_data, option2, dropdown_index)
         img_daily = io.BytesIO()
@@ -466,11 +368,9 @@ if len(dropdown) > 0:
             file_name=f"{dropdown}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_daily.png",
             mime="image/png",
         )
-
         # Menampilkan plot di aplikasi Streamlit
         st.pyplot(fig_daily)
         st.write("--------")
-
     else:
         st.warning("Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!")
 
@@ -478,9 +378,9 @@ if len(dropdown) > 0:
         start_predict = new_data.index[-1].date()
         date = "2024-05-12"
         today = pd.to_datetime(date)
-        next_month = today + timedelta(days=30)
+        next_days = today + timedelta(days=30)
         end_predict = st.date_input(
-            "Tanggal Akhir Prediksi", value=next_month, key="input_end"
+            "Tanggal Akhir Prediksi", value=next_days, key="input_end"
         )
         periode = (start_predict - end_predict).days
         st.form_submit_button("Submit")
@@ -522,67 +422,62 @@ if len(dropdown) > 0:
 
     upcoming_trend = upcoming_trend.rename(
         columns={
-            "Open": "Open_Trend",
-            "High": "High_Trend",
-            "Low": "Low_Trend",
-            "Close": "Close_Trend",
+            "Open": "open_trend",
+            "High": "high_trend",
+            "Low": "low_trend",
+            "Close": "close_trend",
         }
     )
 
-    option3 = st.selectbox(
-        "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart",
-        cols3,
-        key="chart_next_predict",
-    )
-
-    option3_str = str(option3)
-    option3_trend = f"{option3}_Trend"
-    data_trend = upcoming_trend[option3_trend]
-    data_trend = data_trend[start_predict + timedelta(days=1) :]
-
-    st.subheader(f"Berikut Tren harga {dropdown_index} {option3_str} yang akan datang")
-
     trend_data_excel = io.BytesIO()
     with pd.ExcelWriter(trend_data_excel, engine="xlsxwriter") as writer:
-        data_trend.to_excel(writer)
-        st.download_button(
-            label=f"Download {dropdown_index} Trend Data",
-            data=trend_data_excel,
-            file_name=f"{dropdown}_trend.xlsx",
-            mime="application/vnd.ms-excel",
+        upcoming_trend[start_predict + timedelta(days=1) :].to_excel(writer)
+    st.download_button(
+        label=f"Download {dropdown_index} Trend Data",
+        data=trend_data_excel,
+        file_name=f"{dropdown}_trend.xlsx",
+        mime="application/vnd.ms-excel",
+    )
+    next_days_cols = ["Open", "High", "Low", "Close"]
+    for col in next_days_cols:
+        option3_trend = f"{col.lower()}_trend"
+        data_trend = upcoming_trend[option3_trend]
+        data_trend = data_trend[start_predict + timedelta(days=1) :]
+
+        st.subheader(f"Berikut Tren harga {dropdown_index} {col} yang akan datang")
+
+        st.dataframe(data_trend, use_container_width=True)
+
+        fig_tren, ax = plt.subplots(figsize=(15, 7.5))
+        ax.plot(
+            new_prediction_data.loc[:, col],
+            label=f"Harga {col} Terkini",
+        )
+        ax.plot(
+            upcoming_trend.loc[:, option3_trend],
+            label=f"Tren harga {col} yang akan datang",
+        )
+        ax.xaxis.set_major_formatter(
+            DateFormatter("%Y-%m-%d")
+        )  # Menyesuaikan formatter sumbu x
+        plt.setp(
+            ax.xaxis.get_majorticklabels(), rotation=45, ha="right"
+        )  # Menetapkan label pada sumbu x
+        ax.set_xlabel("Tanggal", size=15)
+        ax.set_ylabel(f"{dropdown_index} Price", size=15)
+        ax.set_title(
+            f"Peramalan tren harga {dropdown_index} {col} yang akan datang",
+            size=15,
+        )
+        ax.legend()
+
+        img_tren = io.BytesIO()
+        fig_tren.savefig(img_tren, format="png")
+        btn_tren = st.download_button(
+            label="Unduh Gambar",
+            data=img_tren,
+            file_name=f"{dropdown}_{col}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_trend.png",
+            mime="image/png",
         )
 
-    st.dataframe(data_trend, use_container_width=True)
-
-    fig_tren, ax = plt.subplots(figsize=(15, 7.5))
-    ax.plot(
-        new_prediction_data.loc[:, option3],
-        label=f"Harga {option3_str} Terkini",
-    )
-    ax.plot(
-        upcoming_trend.loc[:, option3_trend],
-        label=f"Tren harga {option3_str} yang akan datang",
-    )
-    ax.xaxis.set_major_formatter(
-        DateFormatter("%Y-%m-%d")
-    )  # Menyesuaikan formatter sumbu x
-    plt.setp(
-        ax.xaxis.get_majorticklabels(), rotation=45, ha="right"
-    )  # Menetapkan label pada sumbu x
-    ax.set_xlabel("Tanggal", size=15)
-    ax.set_ylabel(f"{dropdown_index} Price", size=15)
-    ax.set_title(
-        f"Peramalan tren harga {dropdown_index} {option3_str} yang akan datang", size=15
-    )
-    ax.legend()
-
-    img_tren = io.BytesIO()
-    fig_tren.savefig(img_tren, format="png")
-    btn_tren = st.download_button(
-        label="Unduh Gambar",
-        data=img_tren,
-        file_name=f"{dropdown}_{option3_str}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_trend.png",
-        mime="image/png",
-    )
-
-    st.pyplot(fig_tren)
+        st.pyplot(fig_tren)
