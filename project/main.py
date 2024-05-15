@@ -290,6 +290,12 @@ if len(dropdown) > 0:
     for col in ["open", "high", "low", "close"]:
         (
             new_data[f"{col[0]}_difference"],
+            _,
+        ) = margin_of_error(new_data[col.capitalize()], new_data[f"{col[0]}_predicted"])
+
+    for col in ["open", "high", "low", "close"]:
+        (
+            _,
             new_data[f"{col[0]}_APE"],
         ) = margin_of_error(new_data[col.capitalize()], new_data[f"{col[0]}_predicted"])
 
@@ -305,11 +311,18 @@ if len(dropdown) > 0:
 
     st.text("Harian")
     new_data_daily_io = io.BytesIO()
-    with pd.ExcelWriter(new_data_daily_io, engine="xlsxwriter") as writer:
-        new_data.to_excel(writer)
+    with pd.ExcelWriter(new_data_daily_io, engine="xlsxwriter") as writer1:
+        new_data.to_excel(writer1)
+        workbook = writer1.book
+        worksheet = writer1.sheets["Sheet1"]
+        # adjust the column widths based on the content
+        for i, col in enumerate(new_data.columns):
+            width = max(new_data[col].apply(lambda x: len(str(x))).max(), len(col))
+            worksheet.set_column(i, i, width)
+    new_data_daily_io.seek(0)
     st.download_button(
         label=f"Download Data Harian {dropdown_index}",
-        data=new_data_daily_io,
+        data=new_data_daily_io.getvalue(),
         file_name=f"{dropdown}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_daily.xlsx",
         mime="application/vnd.ms-excel",
     )
@@ -434,11 +447,12 @@ if len(dropdown) > 0:
     )
 
     trend_data_excel = io.BytesIO()
-    with pd.ExcelWriter(trend_data_excel, engine="xlsxwriter") as writer:
-        upcoming_trend[start_predict + timedelta(days=1) :].to_excel(writer)
+    with pd.ExcelWriter(trend_data_excel, engine="xlsxwriter") as writer2:
+        upcoming_trend[start_predict + timedelta(days=1) :].to_excel(writer2)
+    trend_data_excel.seek(0)
     st.download_button(
         label=f"Download {dropdown_index} Trend Data",
-        data=trend_data_excel,
+        data=trend_data_excel.getvalue(),
         file_name=f"{dropdown}_trend.xlsx",
         mime="application/vnd.ms-excel",
     )
