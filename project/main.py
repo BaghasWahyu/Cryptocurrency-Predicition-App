@@ -1,5 +1,4 @@
 import io as io
-
 import matplotlib.pyplot as plt
 from matplotlib.dates import DateFormatter
 import numpy as np
@@ -10,8 +9,6 @@ from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 from datetime import timedelta, datetime
-
-
 from scrape import symbolCrypto, list_crypto, namaCrypto
 
 st.title("Aplikasi Prediksi Harga Cryptocurrencies")
