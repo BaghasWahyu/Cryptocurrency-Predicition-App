@@ -25,13 +25,13 @@ defaults = {
     "chart_crypto_2": ["Volume"],
     "chart_predict": [
         "Open",
-        "open_predicted",
+        "o_predicted",
         "High",
-        "high_predicted",
+        "h_predicted",
         "Low",
-        "low_predicted",
+        "l_predicted",
         "Close",
-        "close_predicted",
+        "c_predicted",
     ],
 }
 
@@ -62,9 +62,9 @@ def calculate_RMSE(actual, predicted):
 
 @st.cache_data
 def margin_of_error(actual, predicted):
-    MOE = actual - predicted
-    MOE_percentage = (MOE / actual) * 100
-    return MOE, MOE_percentage
+    difference = actual - predicted
+    APE = (abs(difference) / actual) * 100
+    return difference, APE
 
 
 @st.cache_data
@@ -267,10 +267,10 @@ if len(dropdown) > 0:
             pd.DataFrame(
                 test_inverse_predicted,
                 columns=[
-                    "open_predicted",
-                    "high_predicted",
-                    "low_predicted",
-                    "close_predicted",
+                    "o_predicted",
+                    "h_predicted",
+                    "l_predicted",
+                    "c_predicted",
                 ],
                 index=crypto_data.iloc[-test_inverse_predicted.shape[0] :].index,
             ),
@@ -289,9 +289,9 @@ if len(dropdown) > 0:
 
     for col in ["open", "high", "low", "close"]:
         (
-            new_data[f"{col}_margin_of_error"],
-            new_data[f"{col}_margin_of_error_percent"],
-        ) = margin_of_error(new_data[col.capitalize()], new_data[f"{col}_predicted"])
+            new_data[f"{col[0]}_difference"],
+            new_data[f"{col[0]}_APE"],
+        ) = margin_of_error(new_data[col.capitalize()], new_data[f"{col[0]}_predicted"])
 
     st.subheader(f"Berikut data {dropdown_index} Terkini dan yang Teprediksi")
     number = st.number_input(
@@ -320,24 +320,22 @@ if len(dropdown) > 0:
         st.write("--------")
         if dropdown == "USDT":
             st.write(
-                f"MAPE {col}: {calculate_MAPE(new_data[col], new_data[f'{col.lower()}_predicted']):.5f}%"
+                f"MAPE {col}: {calculate_MAPE(new_data[col], new_data[f'{col[0].lower()}_predicted']):.5f}%"
             )
             st.write(
-                f"RMSE {col}: {calculate_RMSE(new_data[col], new_data[f'{col.lower()}_predicted'])[0]:.5f} atau {calculate_RMSE(new_data[col], new_data[f'{col.lower()}_predicted'])[1]:.5f}%"
+                f"RMSE {col}: {calculate_RMSE(new_data[col], new_data[f'{col[0].lower()}_predicted'])[0]:.5f} atau {calculate_RMSE(new_data[col], new_data[f'{col[0].lower()}_predicted'])[1]:.5f}%"
             )
         else:
             st.write(
-                f"MAPE {col}: {calculate_MAPE(new_data[col], new_data[f'{col.lower()}_predicted']):.3f}%"
+                f"MAPE {col}: {calculate_MAPE(new_data[col], new_data[f'{col[0].lower()}_predicted']):.3f}%"
             )
             st.write(
-                f"RMSE {col}: {calculate_RMSE(new_data[col], new_data[f'{col.lower()}_predicted'])[0]:.3f} atau {calculate_RMSE(new_data[col], new_data[f'{col.lower()}_predicted'])[1]:.3f}%"
+                f"RMSE {col}: {calculate_RMSE(new_data[col], new_data[f'{col[0].lower()}_predicted'])[0]:.3f} atau {calculate_RMSE(new_data[col], new_data[f'{col[0].lower()}_predicted'])[1]:.3f}%"
             )
     st.write("--------")
     RMSE_total, RMSE_total_percentage = calculate_RMSE(
         new_data[["Open", "High", "Low", "Close"]],
-        new_data[
-            ["open_predicted", "high_predicted", "low_predicted", "close_predicted"]
-        ],
+        new_data[["o_predicted", "h_predicted", "l_predicted", "c_predicted"]],
     )
     st.write(
         f"RMSE Total Harian {dropdown} : {RMSE_total:.5f} atau {RMSE_total_percentage:.5f}%"
@@ -348,7 +346,16 @@ if len(dropdown) > 0:
     option2 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart",
         new_data.columns.tolist(),
-        default=["Open", "open_predicted"],
+        default=[
+            "Open",
+            "o_predicted",
+            "High",
+            "h_predicted",
+            "Low",
+            "l_predicted",
+            "Close",
+            "c_predicted",
+        ],
         key="chart_predict",
     )
 
