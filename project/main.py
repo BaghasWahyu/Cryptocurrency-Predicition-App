@@ -352,10 +352,14 @@ if len(dropdown) > 0:
         new_data[["Open", "High", "Low", "Close"]],
         new_data[["o_predicted", "h_predicted", "l_predicted", "c_predicted"]],
     )
+    MAPE_total = calculate_MAPE(
+        new_data[["Open", "High", "Low", "Close"]],
+        new_data[["o_predicted", "h_predicted", "l_predicted", "c_predicted"]],
+    )
     st.write(
-        f"RMSE Total Harian {dropdown} : {RMSE_total:.5f} atau {RMSE_total_percentage:.5f}%"
+        f"RMSE Total Harian {dropdown} : {RMSE_total:.5f} atau {RMSE_total_percentage:.5f}%\nMAPE Total Harian {dropdown} : {MAPE_total:.5f}"
         if dropdown == "USDT"
-        else f"RMSE Total {dropdown} : {RMSE_total:.3f} atau {RMSE_total_percentage:.3f}%"
+        else f"RMSE Total {dropdown} : {RMSE_total:.3f} atau {RMSE_total_percentage:.3f}\nMAPE Total Harian {dropdown} : {MAPE_total:.3f}%"
     )
     st.write("--------")
     option2 = st.multiselect(
