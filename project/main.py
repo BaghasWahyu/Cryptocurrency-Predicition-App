@@ -77,14 +77,16 @@ def create_sequence(dataset):
 
 
 @st.cache_data
-def plot_actual_vs_predicted(dataframe, opsi, crypto_name):
+def plot_actual_vs_predicted(dataframe, opsi, crypto_name, epoch, neuron, batchSize):
     fig, ax = plt.subplots(figsize=(15, 7.5))
     ax.set_xticklabels(dataframe.index, rotation=45)
     for item in opsi:
         dataframe[[item]].plot(ax=ax)
     ax.set_xlabel("Date")
     ax.set_ylabel("Crypto Price")
-    ax.set_title(f"Actual vs Predicted {crypto_name} price")
+    ax.set_title(
+        f"Actual vs Predicted {crypto_name} Epoch {epoch} Neuron {100} Batch Size {batchSize} price"
+    )
     ax.legend()
     return fig
 
@@ -376,7 +378,14 @@ if len(dropdown) > 0:
         st.subheader("Grafik Harian")
         st.line_chart(new_data[option2], y=option2)
         # Memanggil fungsi untuk membuat plot
-        fig_daily = plot_actual_vs_predicted(new_data, option2, dropdown_index)
+        fig_daily = plot_actual_vs_predicted(
+            new_data,
+            option2,
+            dropdown_index,
+            epoch_option,
+            neurons_option,
+            batch_size_option,
+        )
         img_daily = io.BytesIO()
         fig_daily.savefig(img_daily, format="png")
         btn_daily = st.download_button(
