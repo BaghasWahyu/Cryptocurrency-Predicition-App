@@ -329,9 +329,11 @@ if len(dropdown) > 0:
         mime="application/vnd.ms-excel",
     )
     st.dataframe(new_data, use_container_width=True)
+
     rmse_values = []
     mape_values = []
     mape_rmse_cols = ["Open", "High", "Low", "Close"]
+
     for col in mape_rmse_cols:
         st.write("--------")
         mape = calculate_MAPE(new_data[col], new_data[f"{col[0].lower()}_predicted"])
@@ -350,6 +352,7 @@ if len(dropdown) > 0:
             st.write(f"MAPE {col}: {mape:.3f}%")
             st.write(f"RMSE {col}: {rmse_real:.3f} atau {rmse_percentage:.3f}%")
     st.write("--------")
+
     RMSE_total, RMSE_total_percentage = calculate_RMSE(
         new_data[["Open", "High", "Low", "Close"]],
         new_data[["o_predicted", "h_predicted", "l_predicted", "c_predicted"]],
@@ -358,16 +361,21 @@ if len(dropdown) > 0:
         new_data[["Open", "High", "Low", "Close"]],
         new_data[["o_predicted", "h_predicted", "l_predicted", "c_predicted"]],
     )
-    st.write(
-        f"RMSE Total Harian {dropdown} : {RMSE_total:.5f} atau {RMSE_total_percentage:.5f}%"
-        if dropdown == "USDT"
-        else f"RMSE Total {dropdown} : {RMSE_total:.3f} atau {RMSE_total_percentage:.3f}%"
-    )
-    st.write(
-        f"MAPE Total Harian {dropdown} : {MAPE_total:.5f}%"
-        if dropdown == "USDT"
-        else f"MAPE Total Harian {dropdown} : {MAPE_total:.3f}%"
-    )
+    average_rmse = np.mean(rmse_values)
+    averege_mape = np.mean(mape_values)
+    st.write(f"Rata-rata RMSE {dropdown} : {average_rmse}%")
+    st.write(f"Rata-rata MAPE {dropdown} : {averege_mape}%")
+
+    # st.write(
+    #     f"RMSE Total Harian {dropdown} : {RMSE_total:.5f} atau {RMSE_total_percentage:.5f}%"
+    #     if dropdown == "USDT"
+    #     else f"RMSE Total {dropdown} : {RMSE_total:.3f} atau {RMSE_total_percentage:.3f}%"
+    # )
+    # st.write(
+    #     f"MAPE Total Harian {dropdown} : {MAPE_total:.5f}%"
+    #     if dropdown == "USDT"
+    #     else f"MAPE Total Harian {dropdown} : {MAPE_total:.3f}%"
+    # )
     st.write("--------")
     option2 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart",
