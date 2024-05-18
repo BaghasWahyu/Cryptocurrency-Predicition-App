@@ -334,18 +334,16 @@ if len(dropdown) > 0:
     mape_rmse_cols = ["Open", "High", "Low", "Close"]
     for col in mape_rmse_cols:
         st.write("--------")
+        mape = calculate_MAPE(new_data[col], new_data[f"{col[0].lower()}_predicted"])
+        rmse_real = calculate_RMSE(
+            new_data[col], new_data[f"{col[0].lower()}_predicted"]
+        )[0]
+        rmse_percentage = calculate_RMSE(
+            new_data[col], new_data[f"{col[0].lower()}_predicted"]
+        )[1]
+        mape_values.append(mape)
+        rmse_values.append(rmse_percentage)
         if dropdown == "USDT":
-            mape = calculate_MAPE(
-                new_data[col], new_data[f"{col[0].lower()}_predicted"]
-            )
-            rmse_real = calculate_RMSE(
-                new_data[col], new_data[f"{col[0].lower()}_predicted"]
-            )[0]
-            rmse_percentage = calculate_RMSE(
-                new_data[col], new_data[f"{col[0].lower()}_predicted"]
-            )[1]
-            mape_values.append(mape)
-            rmse_values.append(rmse_percentage)
             st.write(f"MAPE {col}: {mape:.5f}%")
             st.write(f"RMSE {col}: {rmse_real:.5f} atau {rmse_percentage:.5f}%")
         else:
