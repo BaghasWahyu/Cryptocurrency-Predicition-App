@@ -329,24 +329,28 @@ if len(dropdown) > 0:
         mime="application/vnd.ms-excel",
     )
     st.dataframe(new_data, use_container_width=True)
-
+    rmse_values = []
+    mape_values = []
     mape_rmse_cols = ["Open", "High", "Low", "Close"]
     for col in mape_rmse_cols:
         st.write("--------")
         if dropdown == "USDT":
-            st.write(
-                f"MAPE {col}: {calculate_MAPE(new_data[col], new_data[f'{col[0].lower()}_predicted']):.5f}%"
+            mape = calculate_MAPE(
+                new_data[col], new_data[f"{col[0].lower()}_predicted"]
             )
-            st.write(
-                f"RMSE {col}: {calculate_RMSE(new_data[col], new_data[f'{col[0].lower()}_predicted'])[0]:.5f} atau {calculate_RMSE(new_data[col], new_data[f'{col[0].lower()}_predicted'])[1]:.5f}%"
-            )
+            rmse_real = calculate_RMSE(
+                new_data[col], new_data[f"{col[0].lower()}_predicted"]
+            )[0]
+            rmse_percentage = calculate_RMSE(
+                new_data[col], new_data[f"{col[0].lower()}_predicted"]
+            )[1]
+            mape_values.append(mape)
+            rmse_values.append(rmse_percentage)
+            st.write(f"MAPE {col}: {mape:.5f}%")
+            st.write(f"RMSE {col}: {rmse_real:.5f} atau {rmse_percentage:.5f}%")
         else:
-            st.write(
-                f"MAPE {col}: {calculate_MAPE(new_data[col], new_data[f'{col[0].lower()}_predicted']):.3f}%"
-            )
-            st.write(
-                f"RMSE {col}: {calculate_RMSE(new_data[col], new_data[f'{col[0].lower()}_predicted'])[0]:.3f} atau {calculate_RMSE(new_data[col], new_data[f'{col[0].lower()}_predicted'])[1]:.3f}%"
-            )
+            st.write(f"MAPE {col}: {mape:.3f}%")
+            st.write(f"RMSE {col}: {rmse_real:.3f} atau {rmse_percentage:.3f}%")
     st.write("--------")
     RMSE_total, RMSE_total_percentage = calculate_RMSE(
         new_data[["Open", "High", "Low", "Close"]],
