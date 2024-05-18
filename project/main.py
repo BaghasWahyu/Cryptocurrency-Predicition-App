@@ -357,11 +357,15 @@ if len(dropdown) > 0:
         new_data[["o_predicted", "h_predicted", "l_predicted", "c_predicted"]],
     )
     st.write(
-        f"RMSE Total Harian {dropdown} : {RMSE_total:.5f} atau {RMSE_total_percentage:.5f}%\n MAPE Total Harian {dropdown} : {MAPE_total:.5f}%"
+        f"RMSE Total Harian {dropdown} : {RMSE_total:.5f} atau {RMSE_total_percentage:.5f}%"
         if dropdown == "USDT"
-        else f"RMSE Total {dropdown} : {RMSE_total:.3f} atau {RMSE_total_percentage:.3f}%\n MAPE Total Harian {dropdown} : {MAPE_total:.3f}%"
+        else f"RMSE Total {dropdown} : {RMSE_total:.3f} atau {RMSE_total_percentage:.3f}%"
     )
-    st.write
+    st.write(
+        f"MAPE Total Harian {dropdown} : {MAPE_total:.5f}%"
+        if dropdown == "USDT"
+        else f"MAPE Total Harian {dropdown} : {MAPE_total:.3f}%"
+    )
     st.write("--------")
     option2 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart",
