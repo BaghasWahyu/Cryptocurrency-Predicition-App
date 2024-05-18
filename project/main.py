@@ -351,6 +351,7 @@ if len(dropdown) > 0:
         else:
             st.write(f"MAPE {col}: {mape:.3f}%")
             st.write(f"RMSE {col}: {rmse_real:.3f} atau {rmse_percentage:.3f}%")
+
     st.write("--------")
 
     average_rmse = np.mean(rmse_values)
@@ -360,8 +361,10 @@ if len(dropdown) > 0:
         st.write(f"Rata-rata MAPE {dropdown} : {averege_mape:5f}%")
     else:
         st.write(f"Rata-rata RMSE {dropdown} : {average_rmse:.3f}%")
-        st.write(f"Rata-rata MAPE {dropdown} : {averege_mape:3f}%")
+        st.write(f"Rata-rata MAPE {dropdown} : {averege_mape:.3f}%")
+
     st.write("--------")
+
     option2 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart",
         new_data.columns.tolist(),
