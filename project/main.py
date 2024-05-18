@@ -353,29 +353,14 @@ if len(dropdown) > 0:
             st.write(f"RMSE {col}: {rmse_real:.3f} atau {rmse_percentage:.3f}%")
     st.write("--------")
 
-    RMSE_total, RMSE_total_percentage = calculate_RMSE(
-        new_data[["Open", "High", "Low", "Close"]],
-        new_data[["o_predicted", "h_predicted", "l_predicted", "c_predicted"]],
-    )
-    MAPE_total = calculate_MAPE(
-        new_data[["Open", "High", "Low", "Close"]],
-        new_data[["o_predicted", "h_predicted", "l_predicted", "c_predicted"]],
-    )
     average_rmse = np.mean(rmse_values)
     averege_mape = np.mean(mape_values)
-    st.write(f"Rata-rata RMSE {dropdown} : {average_rmse}%")
-    st.write(f"Rata-rata MAPE {dropdown} : {averege_mape}%")
-
-    # st.write(
-    #     f"RMSE Total Harian {dropdown} : {RMSE_total:.5f} atau {RMSE_total_percentage:.5f}%"
-    #     if dropdown == "USDT"
-    #     else f"RMSE Total {dropdown} : {RMSE_total:.3f} atau {RMSE_total_percentage:.3f}%"
-    # )
-    # st.write(
-    #     f"MAPE Total Harian {dropdown} : {MAPE_total:.5f}%"
-    #     if dropdown == "USDT"
-    #     else f"MAPE Total Harian {dropdown} : {MAPE_total:.3f}%"
-    # )
+    if dropdown == "USDT":
+        st.write(f"Rata-rata RMSE {dropdown} : {average_rmse:.5f}%")
+        st.write(f"Rata-rata MAPE {dropdown} : {averege_mape:5f}%")
+    else:
+        st.write(f"Rata-rata RMSE {dropdown} : {average_rmse:.3f}%")
+        st.write(f"Rata-rata MAPE {dropdown} : {averege_mape:3f}%")
     st.write("--------")
     option2 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart",
