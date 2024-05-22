@@ -77,7 +77,9 @@ def create_sequence(dataset):
 
 
 @st.cache_data
-def plot_actual_vs_predicted(dataframe, opsi, crypto_name, epoch, neuron, batchSize):
+def plot_actual_vs_predicted(
+    dataframe, opsi, crypto_name, epoch, neuron, batchSize, freq
+):
     fig, ax = plt.subplots(figsize=(15, 7.5))
     ax.set_xticklabels(dataframe.index, rotation=45)
     for item in opsi:
@@ -85,7 +87,7 @@ def plot_actual_vs_predicted(dataframe, opsi, crypto_name, epoch, neuron, batchS
     ax.set_xlabel("Date")
     ax.set_ylabel("Crypto Price")
     ax.set_title(
-        f"Actual vs Predicted {crypto_name} Epoch {epoch} Neuron {100} Batch Size {batchSize} price"
+        f"Actual vs Predicted {crypto_name} Epoch {epoch} Neuron {neuron} Batch Size {batchSize} {freq} price"
     )
     ax.legend()
     return fig
@@ -311,6 +313,8 @@ if len(dropdown) > 0:
     # Pembulatan nilai pada dataframe
     new_data = new_data.round(number)
 
+    freq = ["Daily", "Weekly"]
+
     st.text("Harian")
     new_data_daily_io = io.BytesIO()
     with pd.ExcelWriter(new_data_daily_io, engine="xlsxwriter") as writer1:
@@ -393,13 +397,14 @@ if len(dropdown) > 0:
             epoch_option,
             neurons_option,
             batch_size_option,
+            freq[0],
         )
         img_daily = io.BytesIO()
         fig_daily.savefig(img_daily, format="png")
         btn_daily = st.download_button(
             label="Unduh Gambar",
             data=img_daily,
-            file_name=f"{dropdown}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_daily.png",
+            file_name=f"{dropdown}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_{freq[0]}.png",
             mime="image/png",
         )
         # Menampilkan plot di aplikasi Streamlit
@@ -427,7 +432,7 @@ if len(dropdown) > 0:
     st.download_button(
         label=f"Download Data Harian {dropdown_index}",
         data=new_data_weekly_io.getvalue(),
-        file_name=f"{dropdown}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_weekly.xlsx",
+        file_name=f"{dropdown}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_{freq[0]}.xlsx",
         mime="application/vnd.ms-excel",
     )
 
@@ -483,13 +488,14 @@ if len(dropdown) > 0:
             epoch_option,
             neurons_option,
             batch_size_option,
+            freq[1],
         )
         img_weekly = io.BytesIO()
         fig_weekly.savefig(img_weekly, format="png")
         btn_weekly = st.download_button(
             label="Unduh Gambar",
             data=img_weekly,
-            file_name=f"{dropdown}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_weekly.png",
+            file_name=f"{dropdown}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_{freq[1]}.png",
             mime="image/png",
         )
         # Menampilkan plot di aplikasi Streamlit
