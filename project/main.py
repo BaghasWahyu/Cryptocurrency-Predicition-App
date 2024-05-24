@@ -315,7 +315,7 @@ if len(dropdown) > 0:
 
     freq = ["Daily", "Weekly"]
 
-    st.text("Harian")
+    st.subheader("Harian")
     new_data_daily_io = io.BytesIO()
     with pd.ExcelWriter(new_data_daily_io, engine="xlsxwriter") as writer1:
         new_data.to_excel(writer1)
@@ -329,7 +329,7 @@ if len(dropdown) > 0:
     st.download_button(
         label=f"Download Data Harian {dropdown_index}",
         data=new_data_daily_io.getvalue(),
-        file_name=f"{dropdown}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_daily.xlsx",
+        file_name=f"{dropdown}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_{freq[0]}.xlsx",
         mime="application/vnd.ms-excel",
     )
     st.dataframe(new_data, use_container_width=True)
@@ -337,38 +337,44 @@ if len(dropdown) > 0:
     rmse_values_daily = []
     mape_values_daily = []
     mape_rmse_cols = ["Open", "High", "Low", "Close"]
+    # Membuat layout kolom sesuai dengan jumlah elemen dalam list
+    columns = st.columns(len(mape_rmse_cols))
 
-    for col in mape_rmse_cols:
-        st.write("--------")
-        mape = calculate_MAPE(new_data[col], new_data[f"{col[0].lower()}_predicted"])
-        rmse_real = calculate_RMSE(
-            new_data[col], new_data[f"{col[0].lower()}_predicted"]
-        )[0]
-        rmse_percentage = calculate_RMSE(
-            new_data[col], new_data[f"{col[0].lower()}_predicted"]
-        )[1]
-        rmse_values_daily.append(mape)
-        mape_values_daily.append(rmse_percentage)
-        if dropdown == "USDT":
-            st.write(f"MAPE Harian {col}: {mape:.5f}%")
-            st.write(f"RMSE Harian {col}: {rmse_real:.5f} atau {rmse_percentage:.5f}%")
-        else:
-            st.write(f"MAPE Harian {col}: {mape:.3f}%")
-            st.write(f"RMSE Harian {col}: {rmse_real:.3f} atau {rmse_percentage:.3f}%")
+    for i, col in enumerate(mape_rmse_cols):
+        with columns[i]:
+            st.write("--------")
+            mape_daily = calculate_MAPE(
+                new_data[col], new_data[f"{col[0].lower()}_predicted"]
+            )
+            rmse_real_daily, rmse_percentage_daily = calculate_RMSE(
+                new_data[col], new_data[f"{col[0].lower()}_predicted"]
+            )
+            rmse_values_daily.append(rmse_percentage_daily)
+            mape_values_daily.append(mape_daily)
 
+            if dropdown == "USDT":
+                st.write(f"MAPE Harian {col}: {mape_daily:.5f}%")
+                st.write(
+                    f"RMSE Harian {col}: {rmse_real_daily:.5f} atau {rmse_percentage_daily:.5f}%"
+                )
+            else:
+                st.write(f"MAPE Harian {col}: {mape_daily:.3f}%")
+                st.write(
+                    f"RMSE Harian {col}: {rmse_real_daily:.3f} atau {rmse_percentage_daily:.3f}%"
+                )
     st.write("--------")
 
     average_rmse_daily = np.mean(rmse_values_daily)
-    averege_mape_daily = np.mean(mape_values_daily)
+    average_mape_daily = np.mean(mape_values_daily)
+
     if dropdown == "USDT":
-        st.write(f"Rata-rata MAPE Harian {dropdown} : {averege_mape_daily:5f}%")
+        st.write(f"Rata-rata MAPE Harian {dropdown} : {average_mape_daily:.5f}%")
         st.write(f"Rata-rata RMSE Harian {dropdown} : {average_rmse_daily:.5f}%")
-
+        st.write("--------")
     else:
-        st.write(f"Rata-rata MAPE Harian {dropdown} : {averege_mape_daily:.3f}%")
+        st.write(f"Rata-rata MAPE Harian {dropdown} : {average_mape_daily:.3f}%")
         st.write(f"Rata-rata RMSE Harian {dropdown} : {average_rmse_daily:.3f}%")
-
-    st.write("--------")
+        st.write("--------")
 
     option2 = st.multiselect(
         "Pilih Aspek untuk ditampilkan dalam bentuk Line Chart",
@@ -413,12 +419,12 @@ if len(dropdown) > 0:
     else:
         st.warning("Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!")
 
-    st.write("Mingguan")
+    st.subheader("Mingguan")
     new_data_weekly_io = io.BytesIO()
     new_data_weekly = new_data.resample("W").mean()
     new_data_weekly = new_data_weekly.round(number)
     with pd.ExcelWriter(new_data_weekly_io, engine="xlsxwriter") as writer1:
-        new_data.to_excel(writer1)
+        new_data_weekly.to_excel(writer1)
         workbook = writer1.book
         worksheet = writer1.sheets["Sheet1"]
         # adjust the column widths based on the content
@@ -430,9 +436,9 @@ if len(dropdown) > 0:
     new_data_weekly_io.seek(0)
 
     st.download_button(
-        label=f"Download Data Harian {dropdown_index}",
+        label=f"Download Data Mingguan {dropdown_index}",
         data=new_data_weekly_io.getvalue(),
-        file_name=f"{dropdown}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_{freq[0]}.xlsx",
+        file_name=f"{dropdown}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_{freq[1]}.xlsx",
         mime="application/vnd.ms-excel",
     )
 
@@ -440,42 +446,43 @@ if len(dropdown) > 0:
 
     mape_values_weekly = []
     rmse_values_weekly = []
+    columns = st.columns(len(mape_rmse_cols))
 
-    for col in mape_rmse_cols:
-        st.write("--------")
-        mape = calculate_MAPE(
-            new_data_weekly[col], new_data_weekly[f"{col[0].lower()}_predicted"]
-        )
-        rmse_real = calculate_RMSE(
-            new_data_weekly[col], new_data_weekly[f"{col[0].lower()}_predicted"]
-        )[0]
-        rmse_percentage = calculate_RMSE(
-            new_data_weekly[col], new_data_weekly[f"{col[0].lower()}_predicted"]
-        )[1]
-        mape_values_weekly.append(mape)
-        rmse_values_weekly.append(rmse_percentage)
-        if dropdown == "USDT":
-            st.write(f"MAPE Mingguan {col}: {mape:.5f}%")
-            st.write(
-                f"RMSE Mingguan {col}: {rmse_real:.5f} atau {rmse_percentage:.5f}%"
+    for i, col in enumerate(mape_rmse_cols):
+        with columns[i]:
+            st.write("--------")
+            mape_weekly = calculate_MAPE(
+                new_data_weekly[col], new_data_weekly[f"{col[0].lower()}_predicted"]
             )
-        else:
-            st.write(f"MAPE Mingguan {col}: {mape:.3f}%")
-            st.write(
-                f"RMSE Mingguan {col}: {rmse_real:.3f} atau {rmse_percentage:.3f}%"
+            rmse_real_weekly, rmse_percentage_weekly = calculate_RMSE(
+                new_data_weekly[col], new_data_weekly[f"{col[0].lower()}_predicted"]
             )
+            rmse_values_weekly.append(rmse_percentage_weekly)
+            mape_values_weekly.append(mape_weekly)
 
+            if dropdown == "USDT":
+                st.write(f"MAPE Mingguan {col}: {mape_weekly:.5f}%")
+                st.write(
+                    f"RMSE Mingguan {col}: {rmse_real_weekly:.5f} atau {rmse_percentage_weekly:.5f}%"
+                )
+            else:
+                st.write(f"MAPE Mingguan {col}: {mape_weekly :.3f}%")
+                st.write(
+                    f"RMSE Mingguan {col}: {rmse_real_weekly:.3f} atau {rmse_percentage_weekly:.3f}%"
+                )
     st.write("--------")
 
     average_rmse_weekly = np.mean(rmse_values_weekly)
-    averege_mape_weekly = np.mean(mape_values_weekly)
-    if dropdown == "USDT":
-        st.write(f"Rata-rata MAPE Mingguan {dropdown} : {averege_mape_weekly:5f}%")
-        st.write(f"Rata-rata RMSE Mingguan {dropdown} : {average_rmse_weekly:.5f}%")
+    average_mape_weekly = np.mean(mape_values_weekly)
 
+    if dropdown == "USDT":
+        st.write(f"Rata-rata MAPE Mingguan {dropdown} : {average_mape_weekly:.5f}%")
+        st.write(f"Rata-rata RMSE Mingguan {dropdown} : {average_rmse_weekly:.5f}%")
+        st.write("--------")
     else:
-        st.write(f"Rata-rata MAPE Mingguan {dropdown} : {averege_mape_weekly:.3f}%")
+        st.write(f"Rata-rata MAPE Mingguan {dropdown} : {average_mape_weekly:.3f}%")
         st.write(f"Rata-rata RMSE Mingguan {dropdown} : {average_rmse_weekly:.3f}%")
+        st.write("--------")
 
     if option2:
         st.subheader("Grafik Mingguan")
