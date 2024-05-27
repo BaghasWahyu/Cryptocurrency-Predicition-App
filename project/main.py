@@ -131,17 +131,17 @@ if len(dropdown) > 0:
     startdate = datetime(2019, 1, 1).date()
     enddate = datetime(2024, 5, 12).date()
 
-    df_latest_price = get_latest_price(dropdown, startdate, enddate)
+    # df_latest_price = get_latest_price(dropdown, startdate, enddate)
     data_historis = pd.read_excel(
         f"./data_historis/{dropdown}_data_historis.xlsx",
         index_col=0,
         parse_dates=True,
         engine="openpyxl",
     )
-    if not df_latest_price.equals(data_historis):
-        df_latest_price.to_excel(f"./data_historis/{dropdown}_data_historis.xlsx")
+    # if not df_latest_price.equals(data_historis):
+    #     df_latest_price.to_excel(f"./data_historis/{dropdown}_data_historis.xlsx")
 
-    df = df_latest_price
+    df = data_historis
     df = df.drop(columns=["Time Open", "Time High", "Time Low", "Time Close"], axis=1)
 
     with open(f"./data_historis/{dropdown}_data_historis.xlsx", "rb") as file_historis:
