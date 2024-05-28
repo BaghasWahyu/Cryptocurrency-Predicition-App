@@ -511,111 +511,111 @@ if len(dropdown) > 0:
     else:
         st.warning("Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!")
 
-    with st.form("first_form"):
-        start_predict = new_data.index[-1].date()
-        date = "2024-05-12"
-        today = pd.to_datetime(date)
-        next_days = today + timedelta(days=30)
-        end_predict = st.date_input(
-            "Tanggal Akhir Prediksi", value=next_days, key="input_end"
-        )
-        periode = (start_predict - end_predict).days
-        st.form_submit_button("Submit")
+    # with st.form("first_form"):
+    #     start_predict = new_data.index[-1].date()
+    #     date = "2024-05-12"
+    #     today = pd.to_datetime(date)
+    #     next_days = today + timedelta(days=30)
+    #     end_predict = st.date_input(
+    #         "Tanggal Akhir Prediksi", value=next_days, key="input_end"
+    #     )
+    #     periode = (start_predict - end_predict).days
+    #     st.form_submit_button("Submit")
 
-    new_rows = pd.DataFrame(
-        index=pd.date_range(
-            start=new_data.index[-1], end=end_predict, freq="D", inclusive="right"
-        ),
-        columns=new_data.columns[:4],
-    )
+    # new_rows = pd.DataFrame(
+    #     index=pd.date_range(
+    #         start=new_data.index[-1], end=end_predict, freq="D", inclusive="right"
+    #     ),
+    #     columns=new_data.columns[:4],
+    # )
 
-    new_prediction_data = pd.concat(
-        [
-            new_data[["Open", "High", "Low", "Close"]],
-            new_rows,
-        ],
-        axis=0,
-    )
+    # new_prediction_data = pd.concat(
+    #     [
+    #         new_data[["Open", "High", "Low", "Close"]],
+    #         new_rows,
+    #     ],
+    #     axis=0,
+    # )
 
-    upcoming_trend = pd.DataFrame(
-        columns=["Open", "High", "Low", "Close"], index=new_prediction_data.index
-    )
+    # upcoming_trend = pd.DataFrame(
+    #     columns=["Open", "High", "Low", "Close"], index=new_prediction_data.index
+    # )
 
-    upcoming_trend.index = pd.to_datetime(upcoming_trend.index)
+    # upcoming_trend.index = pd.to_datetime(upcoming_trend.index)
 
-    current_seq = test_seq[-1:]
+    # current_seq = test_seq[-1:]
 
-    for i in range(periode, 0):
-        trend_prediction = loaded_model.predict(current_seq)
-        upcoming_trend.iloc[i] = trend_prediction
-        current_seq = np.append(current_seq[0][1:], trend_prediction, axis=0)
-        current_seq = current_seq.reshape(test_seq[-1:].shape)
+    # for i in range(periode, 0):
+    #     trend_prediction = loaded_model.predict(current_seq)
+    #     upcoming_trend.iloc[i] = trend_prediction
+    #     current_seq = np.append(current_seq[0][1:], trend_prediction, axis=0)
+    #     current_seq = current_seq.reshape(test_seq[-1:].shape)
 
-    upcoming_trend[["Open", "High", "Low", "Close"]] = MMS.inverse_transform(
-        upcoming_trend[["Open", "High", "Low", "Close"]]
-    )
+    # upcoming_trend[["Open", "High", "Low", "Close"]] = MMS.inverse_transform(
+    #     upcoming_trend[["Open", "High", "Low", "Close"]]
+    # )
 
-    cols3 = upcoming_trend.columns.tolist()
+    # cols3 = upcoming_trend.columns.tolist()
 
-    upcoming_trend = upcoming_trend.rename(
-        columns={
-            "Open": "open_trend",
-            "High": "high_trend",
-            "Low": "low_trend",
-            "Close": "close_trend",
-        }
-    )
+    # upcoming_trend = upcoming_trend.rename(
+    #     columns={
+    #         "Open": "open_trend",
+    #         "High": "high_trend",
+    #         "Low": "low_trend",
+    #         "Close": "close_trend",
+    #     }
+    # )
 
-    trend_data_excel = io.BytesIO()
-    with pd.ExcelWriter(trend_data_excel, engine="xlsxwriter") as writer2:
-        upcoming_trend[start_predict + timedelta(days=1) :].to_excel(writer2)
-    trend_data_excel.seek(0)
-    st.download_button(
-        label=f"Download {dropdown_index} Trend Data",
-        data=trend_data_excel.getvalue(),
-        file_name=f"{dropdown}_trend.xlsx",
-        mime="application/vnd.ms-excel",
-    )
-    next_days_cols = ["Open", "High", "Low", "Close"]
-    for col in next_days_cols:
-        option3_trend = f"{col.lower()}_trend"
-        data_trend = upcoming_trend[option3_trend]
-        data_trend = data_trend[start_predict + timedelta(days=1) :]
+    # trend_data_excel = io.BytesIO()
+    # with pd.ExcelWriter(trend_data_excel, engine="xlsxwriter") as writer2:
+    #     upcoming_trend[start_predict + timedelta(days=1) :].to_excel(writer2)
+    # trend_data_excel.seek(0)
+    # st.download_button(
+    #     label=f"Download {dropdown_index} Trend Data",
+    #     data=trend_data_excel.getvalue(),
+    #     file_name=f"{dropdown}_trend.xlsx",
+    #     mime="application/vnd.ms-excel",
+    # )
+    # next_days_cols = ["Open", "High", "Low", "Close"]
+    # for col in next_days_cols:
+    #     option3_trend = f"{col.lower()}_trend"
+    #     data_trend = upcoming_trend[option3_trend]
+    #     data_trend = data_trend[start_predict + timedelta(days=1) :]
 
-        st.subheader(f"Berikut Tren harga {dropdown_index} {col} yang akan datang")
+    #     st.subheader(f"Berikut Tren harga {dropdown_index} {col} yang akan datang")
 
-        st.dataframe(data_trend, use_container_width=True)
+    #     st.dataframe(data_trend, use_container_width=True)
 
-        fig_tren, ax = plt.subplots(figsize=(15, 7.5))
-        ax.plot(
-            new_prediction_data.loc[:, col],
-            label=f"Harga {col} Terkini",
-        )
-        ax.plot(
-            upcoming_trend.loc[:, option3_trend],
-            label=f"Tren harga {col} yang akan datang",
-        )
-        ax.xaxis.set_major_formatter(
-            DateFormatter("%Y-%m-%d")
-        )  # Menyesuaikan formatter sumbu x
-        plt.setp(
-            ax.xaxis.get_majorticklabels(), rotation=45, ha="right"
-        )  # Menetapkan label pada sumbu x
-        ax.set_xlabel("Tanggal", size=15)
-        ax.set_ylabel(f"{dropdown_index} Price", size=15)
-        ax.set_title(
-            f"Peramalan tren harga {dropdown_index} {col} yang akan datang",
-            size=15,
-        )
-        ax.legend()
+    #     fig_tren, ax = plt.subplots(figsize=(15, 7.5))
+    #     ax.plot(
+    #         new_prediction_data.loc[:, col],
+    #         label=f"Harga {col} Terkini",
+    #     )
+    #     ax.plot(
+    #         upcoming_trend.loc[:, option3_trend],
+    #         label=f"Tren harga {col} yang akan datang",
+    #     )
+    #     ax.xaxis.set_major_formatter(
+    #         DateFormatter("%Y-%m-%d")
+    #     )  # Menyesuaikan formatter sumbu x
+    #     plt.setp(
+    #         ax.xaxis.get_majorticklabels(), rotation=45, ha="right"
+    #     )  # Menetapkan label pada sumbu x
+    #     ax.set_xlabel("Tanggal", size=15)
+    #     ax.set_ylabel(f"{dropdown_index} Price", size=15)
+    #     ax.set_title(
+    #         f"Peramalan tren harga {dropdown_index} {col} yang akan datang",
+    #         size=15,
+    #     )
+    #     ax.legend()
 
-        img_tren = io.BytesIO()
-        fig_tren.savefig(img_tren, format="png")
-        btn_tren = st.download_button(
-            label="Unduh Gambar",
-            data=img_tren,
-            file_name=f"{dropdown}_{col}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_trend.png",
-            mime="image/png",
-        )
+    #     img_tren = io.BytesIO()
+    #     fig_tren.savefig(img_tren, format="png")
+    #     btn_tren = st.download_button(
+    #         label="Unduh Gambar",
+    #         data=img_tren,
+    #         file_name=f"{dropdown}_{col}_Epoch{epoch_option}_Neuron{neurons_option}_BatchSize{batch_size_option}_trend.png",
+    #         mime="image/png",
+    #     )
 
-        st.pyplot(fig_tren)
+    #     st.pyplot(fig_tren)
