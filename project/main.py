@@ -343,9 +343,11 @@ if len(dropdown) > 0:
     for i, col in enumerate(mape_rmse_cols):
         with columns[i]:
             st.write("--------")
-            mape_daily = calculate_MAPE(
-                new_data[col], new_data[f"{col[0].lower()}_predicted"]
-            )
+            # mape_daily = calculate_MAPE(
+            #     new_data[col], new_data[f"{col[0].lower()}_predicted"]
+            # )
+            mape_daily = np.mean(new_data[f"{col[0].lower()}_APE"])
+
             rmse_real_daily, rmse_percentage_daily = calculate_RMSE(
                 new_data[col], new_data[f"{col[0].lower()}_predicted"]
             )
@@ -451,9 +453,10 @@ if len(dropdown) > 0:
     for i, col in enumerate(mape_rmse_cols):
         with columns[i]:
             st.write("--------")
-            mape_weekly = calculate_MAPE(
-                new_data_weekly[col], new_data_weekly[f"{col[0].lower()}_predicted"]
-            )
+            # mape_weekly = calculate_MAPE(
+            #     new_data_weekly[col], new_data_weekly[f"{col[0].lower()}_predicted"]
+            # )
+            mape_weekly = np.mean(new_data_weekly[f"{col[0].lower()}_APE"])
             rmse_real_weekly, rmse_percentage_weekly = calculate_RMSE(
                 new_data_weekly[col], new_data_weekly[f"{col[0].lower()}_predicted"]
             )
@@ -474,6 +477,7 @@ if len(dropdown) > 0:
 
     average_rmse_weekly = np.mean(rmse_values_weekly)
     average_mape_weekly = np.mean(mape_values_weekly)
+    st.write(mape_values_weekly)
 
     if dropdown == "USDT":
         st.write(f"Rata-rata MAPE Mingguan {dropdown} : {average_mape_weekly:.5f}%")
