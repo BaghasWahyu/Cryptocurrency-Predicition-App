@@ -477,7 +477,6 @@ if len(dropdown) > 0:
 
     average_rmse_weekly = np.mean(rmse_values_weekly)
     average_mape_weekly = np.mean(mape_values_weekly)
-    st.write(mape_values_weekly)
 
     if dropdown == "USDT":
         st.write(f"Rata-rata MAPE Mingguan {dropdown} : {average_mape_weekly:.5f}%")
