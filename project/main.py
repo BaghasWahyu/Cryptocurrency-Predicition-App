@@ -63,8 +63,9 @@ def calculate_RMSE(actual, predicted):
 @st.cache_data
 def margin_of_error(actual, predicted):
     difference = actual - predicted
+    squared_difference = (actual - predicted)**2
     APE = (abs(difference) / actual) * 100
-    return difference, APE
+    return difference, squared_difference,  APE
 
 
 @st.cache_data
@@ -294,12 +295,16 @@ if len(dropdown) > 0:
     for col in ["open", "high", "low", "close"]:
         (
             new_data[f"{col[0]}_difference"],
-            _,
+            _, _,
         ) = margin_of_error(new_data[col.capitalize()], new_data[f"{col[0]}_predicted"])
-
+    # for col in ["open", "high", "low", "close"]:
+    #     (
+    #         _,
+    #         new_data[f"{col[0]}_sq_diff"], _,
+    #     ) = margin_of_error(new_data[col.capitalize()], new_data[f"{col[0]}_predicted"])
     for col in ["open", "high", "low", "close"]:
         (
-            _,
+            _, _,
             new_data[f"{col[0]}_APE"],
         ) = margin_of_error(new_data[col.capitalize()], new_data[f"{col[0]}_predicted"])
 
@@ -336,6 +341,7 @@ if len(dropdown) > 0:
 
     rmse_values_daily = []
     mape_values_daily = []
+    rmse_real_values_daily = []
     mape_rmse_cols = ["Open", "High", "Low", "Close"]
     # Membuat layout kolom sesuai dengan jumlah elemen dalam list
     columns = st.columns(len(mape_rmse_cols))
@@ -343,14 +349,16 @@ if len(dropdown) > 0:
     for i, col in enumerate(mape_rmse_cols):
         with columns[i]:
             st.write("--------")
-            # mape_daily = calculate_MAPE(
-            #     new_data[col], new_data[f"{col[0].lower()}_predicted"]
-            # )
+            mape_daily = calculate_MAPE(
+                new_data[col], new_data[f"{col[0].lower()}_predicted"]
+            )
             mape_daily = np.mean(new_data[f"{col[0].lower()}_APE"])
-
+            
             rmse_real_daily, rmse_percentage_daily = calculate_RMSE(
                 new_data[col], new_data[f"{col[0].lower()}_predicted"]
             )
+            # rmse_2_real_daily =  np.sqrt(np.mean(new_data[f"{col[0].lower()}_sq_diff"]))
+            rmse_real_values_daily.append(rmse_real_daily)
             rmse_values_daily.append(rmse_percentage_daily)
             mape_values_daily.append(mape_daily)
 
@@ -359,23 +367,31 @@ if len(dropdown) > 0:
                 st.write(
                     f"RMSE Harian {col}: {rmse_real_daily:.5f} atau {rmse_percentage_daily:.5f}%"
                 )
+                # st.write(
+                #     f"RMSE Harian bener {col}: rmse_2_real_daily"
+                # )
             else:
                 st.write(f"MAPE Harian {col}: {mape_daily:.3f}%")
                 st.write(
                     f"RMSE Harian {col}: {rmse_real_daily:.3f} atau {rmse_percentage_daily:.3f}%"
                 )
+                # st.write(
+                #     f"RMSE Harian bener {col}: {rmse_2_real_daily}"
+                # )
     st.write("--------")
 
     average_rmse_daily = np.mean(rmse_values_daily)
+    average_rmse_real_daily = np.mean(rmse_real_values_daily)
     average_mape_daily = np.mean(mape_values_daily)
+
 
     if dropdown == "USDT":
         st.write(f"Rata-rata MAPE Harian {dropdown} : {average_mape_daily:.5f}%")
-        st.write(f"Rata-rata RMSE Harian {dropdown} : {average_rmse_daily:.5f}%")
+        st.write(f"Rata-rata RMSE Harian {dropdown} : {average_rmse_real_daily:.5f} atau {average_rmse_daily:.5f}%")
         st.write("--------")
     else:
         st.write(f"Rata-rata MAPE Harian {dropdown} : {average_mape_daily:.3f}%")
-        st.write(f"Rata-rata RMSE Harian {dropdown} : {average_rmse_daily:.3f}%")
+        st.write(f"Rata-rata RMSE Harian {dropdown} : {average_rmse_real_daily:.3f} atau {average_rmse_daily:.3f}%")
         st.write("--------")
 
     option2 = st.multiselect(
@@ -448,6 +464,7 @@ if len(dropdown) > 0:
 
     mape_values_weekly = []
     rmse_values_weekly = []
+    rmse_real_values_weekly = []
     columns = st.columns(len(mape_rmse_cols))
 
     for i, col in enumerate(mape_rmse_cols):
@@ -460,7 +477,10 @@ if len(dropdown) > 0:
             rmse_real_weekly, rmse_percentage_weekly = calculate_RMSE(
                 new_data_weekly[col], new_data_weekly[f"{col[0].lower()}_predicted"]
             )
+            # rmse_2_real_weekly =  np.sqrt(np.mean(new_data_weekly[f"{col[0].lower()}_sq_diff"]))
+            # rmse_2_percentage_weekly = (rmse_2_real_weekly / np.mean(new_data_weekly[col])) *100
             rmse_values_weekly.append(rmse_percentage_weekly)
+            rmse_real_values_weekly.append(rmse_real_weekly)
             mape_values_weekly.append(mape_weekly)
 
             if dropdown == "USDT":
@@ -473,18 +493,23 @@ if len(dropdown) > 0:
                 st.write(
                     f"RMSE Mingguan {col}: {rmse_real_weekly:.3f} atau {rmse_percentage_weekly:.3f}%"
                 )
+                # st.write(
+                #     f"RMSE Mingguan {col}: {rmse_2_real_weekly} atau {rmse_2_percentage_weekly}"
+                # )
+
     st.write("--------")
 
     average_rmse_weekly = np.mean(rmse_values_weekly)
+    average_rmse_real_weekly = np.mean(rmse_real_weekly)
     average_mape_weekly = np.mean(mape_values_weekly)
 
     if dropdown == "USDT":
         st.write(f"Rata-rata MAPE Mingguan {dropdown} : {average_mape_weekly:.5f}%")
-        st.write(f"Rata-rata RMSE Mingguan {dropdown} : {average_rmse_weekly:.5f}%")
+        st.write(f"Rata-rata RMSE Mingguan {dropdown} : {average_rmse_real_weekly:.5f} atau {average_rmse_weekly:.5f}%")
         st.write("--------")
     else:
         st.write(f"Rata-rata MAPE Mingguan {dropdown} : {average_mape_weekly:.3f}%")
-        st.write(f"Rata-rata RMSE Mingguan {dropdown} : {average_rmse_weekly:.3f}%")
+        st.write(f"Rata-rata RMSE Mingguan {dropdown} : {average_rmse_real_weekly:.3f} atau {average_rmse_weekly:.3f}%")
         st.write("--------")
 
     if option2:
@@ -513,6 +538,8 @@ if len(dropdown) > 0:
         st.write("--------")
     else:
         st.warning("Silahkan Pilih Aspek yang akan Ditampilkan Terlebih Dahulu!")
+        st.write("--------")
+
 
     # with st.form("first_form"):
     #     start_predict = new_data.index[-1].date()
